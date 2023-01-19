@@ -27,50 +27,72 @@ static const std::map<TString, std::map<TString,TString>> reference_obj_map = {
 };
 
 static const std::map<TString, std::map<TString,TString>> input_hnames_map = {
-  {"Resp_zjet_mpf", { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/mpfchs1_zjet_a100"},}},
-  {"chf_zjet_mpf",  { {"fname", "jes"}, {"type", "chf"}, {"hname","MODE/etaETAMIN-ETAMAX/chf_zjet_a100"},}},
-  {"nhf_zjet_mpf",  { {"fname", "jes"}, {"type", "nhf"}, {"hname","MODE/etaETAMIN-ETAMAX/nhf_zjet_a100"},}},
-  {"nef_zjet_mpf",  { {"fname", "jes"}, {"type", "nef"}, {"hname","MODE/etaETAMIN-ETAMAX/nef_zjet_a100"},}},
+  {"Resp_zjet_mpf",            { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/mpfchs1_zjet_a100"},}},
+  {"Resp_zjet_db",             { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/ptchs_zjet_a100"},}},
+  {"chf_zjet_mpf",             { {"fname", "jes"}, {"type", "chf"},  {"hname","MODE/etaETAMIN-ETAMAX/chf_zjet_a100"},}},
+  {"nhf_zjet_mpf",             { {"fname", "jes"}, {"type", "nhf"},  {"hname","MODE/etaETAMIN-ETAMAX/nhf_zjet_a100"},}},
+  {"nef_zjet_mpf",             { {"fname", "jes"}, {"type", "nef"},  {"hname","MODE/etaETAMIN-ETAMAX/nef_zjet_a100"},}},
 
-  {"Resp_gamjet_mpf", { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/mpfchs1_gamjet_a100"},}},
-  {"chf_gamjet_mpf",  { {"fname", "jes"}, {"type", "chf"}, {"hname","MODE/etaETAMIN-ETAMAX/chf_gamjet_a100"},}},
-  {"nhf_gamjet_mpf",  { {"fname", "jes"}, {"type", "nhf"}, {"hname","MODE/etaETAMIN-ETAMAX/nhf_gamjet_a100"},}},
-  {"nef_gamjet_mpf",  { {"fname", "jes"}, {"type", "nef"}, {"hname","MODE/etaETAMIN-ETAMAX/nef_gamjet_a100"},}},
+  {"Resp_gamjet_mpf",          { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/mpfchs1_gamjet_a100"},}},
+  {"Resp_gamjet_db",           { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/ptchs_gamjet_a100"},}},
+  {"chf_gamjet_mpf",           { {"fname", "jes"}, {"type", "chf"},  {"hname","MODE/etaETAMIN-ETAMAX/chf_gamjet_a100"},}},
+  {"nhf_gamjet_mpf",           { {"fname", "jes"}, {"type", "nhf"},  {"hname","MODE/etaETAMIN-ETAMAX/nhf_gamjet_a100"},}},
+  {"nef_gamjet_mpf",           { {"fname", "jes"}, {"type", "nef"},  {"hname","MODE/etaETAMIN-ETAMAX/nef_gamjet_a100"},}},
 
-  {"Resp_hadw_mpf", { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/mpfchs1_hadw_a30"},}},
+  {"Resp_hadw_mpf",            { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/mpfchs1_hadw_a30"},}},
+  {"Resp_hadw_db",             { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/ptchs_hadw_a30"},}},
 
+  {"Resp_multijet_mpf",        { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/mpfchs1_multijet_a30"},}},
+  {"Resp_multijet_db",         { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/ptchs_multijet_a30"},}},
+
+  {"Resp_incljet_mpf",        { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/mpfchs1_incjet_a100"},}},
+  {"Resp_incljet_db",         { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/ptchs_incjet_a100"},}},
+
+};
+
+static const std::map<TString, std::map<TString,TString>> recoil_hnames_map = {
+  {"Resp_multijet_recoil_mpf", { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/crecoil_multijet_a30"},}},
+  {"Resp_multijet_recoil_db", { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/crecoil_multijet_a30"},}},
 };
 
 static const std::map<TString, std::map<TString,TString>> kfsr_hnames_map = {
-  {"kfsr_zjet", { {"appliesTo", "Resp_zjet_mpf"}, {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_zjet"},}},
-  {"kfsr_gamjet", { {"appliesTo", "Resp_gamjet_mpf"}, {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_gamjet"},}},
+  {"fsr_zjet_mpf",            { {"appliesTo", "Resp_zjet_mpf"},            {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_zjet"},}},
+  {"fsr_gamjet_mpf",          { {"appliesTo", "Resp_gamjet_mpf"},          {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_gamjet"},}},
+  {"fsr_multijet_mpf",        { {"appliesTo", "Resp_multijet_mpf"},        {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_multijet"},}},
+
+  {"fsr_zjet_db",             { {"appliesTo", "Resp_zjet_db"},             {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_ptchs_zjet"},}},
+  {"fsr_gamjet_db",           { {"appliesTo", "Resp_gamjet_db"},           {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_ptchs_gamjet"},}},
+  {"fsr_multijet_db",         { {"appliesTo", "Resp_multijet_db"},         {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_ptchs_multijet"},}},
 };
 
 static const std::map<TString, std::map<TString,TString>> sources_hnames_map = {
-  {"Resp_uncl_zjet",    { {"appliesTo", "Resp_zjet_mpf"}, {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_zjet_mpfu1"},}},
-  {"Resp_add_jet_zjet", { {"appliesTo", "Resp_zjet_mpf"}, {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_zjet_mpfn1"},}},
-  {"Resp_scale_zjet",   { {"appliesTo", "Resp_zjet_mpf"}, {"fname", "jes"}, {"hname","scale0.2"},}},
-  {"Resp_hdmscale_zjet",   { {"appliesTo", "Resp_zjet_mpf"}, {"fname", "jes"}, {"hname","scale0.2"},}},
+  {"Resp_uncl_zjet_mpf",        { {"appliesTo", "Resp_zjet_mpf"},     {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_zjet_mpfu1"},}},
+  {"Resp_add_jet_zjet_mpf",     { {"appliesTo", "Resp_zjet_mpf"},     {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_zjet_mpfn1"},}},
+  {"Resp_scale_zjet_mpf",       { {"appliesTo", "Resp_zjet_mpf"},     {"fname", "jes"}, {"hname","scale0.2"},}},
+  {"Resp_hdmscale_zjet_mpf",    { {"appliesTo", "Resp_zjet_mpf"},     {"fname", "jes"}, {"hname","scale0.2"},}},
 
-  {"Resp_uncl_gamjet",    { {"appliesTo", "Resp_gamjet_mpf"}, {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_gamjet_mpfu1"},}},
-  {"Resp_add_jet_gamjet", { {"appliesTo", "Resp_gamjet_mpf"}, {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_gamjet_mpfn1"},}},
-  {"Resp_scale_gamjet",   { {"appliesTo", "Resp_gamjet_mpf"}, {"fname", "jes"}, {"hname","scale0.5"},}},
-  {"Resp_hdmscale_gamjet",   { {"appliesTo", "Resp_gamjet_mpf"}, {"fname", "jes"}, {"hname","scale0.2"},}},
+  {"Resp_uncl_gamjet_mpf",      { {"appliesTo", "Resp_gamjet_mpf"},   {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_gamjet_mpfu1"},}},
+  {"Resp_add_jet_gamjet_mpf",   { {"appliesTo", "Resp_gamjet_mpf"},   {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_gamjet_mpfn1"},}},
+  {"Resp_scale_gamjet_mpf",     { {"appliesTo", "Resp_gamjet_mpf"},   {"fname", "jes"}, {"hname","scale0.5"},}},
+  {"Resp_hdmscale_gamjet_mpf",  { {"appliesTo", "Resp_gamjet_mpf"},   {"fname", "jes"}, {"hname","scale0.2"},}},
 
-  {"Resp_zee_gamjet_eig0",   { {"appliesTo", "Resp_gamjet_mpf"}, {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/sys/zee_gamjet_eig0"},}},
-  {"Resp_zee_gamjet_eig1",   { {"appliesTo", "Resp_gamjet_mpf"}, {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/sys/zee_gamjet_eig1"},}},
-  {"Resp_zee_gamjet_eig2",   { {"appliesTo", "Resp_gamjet_mpf"}, {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/sys/zee_gamjet_eig2"},}},
+  {"Resp_zee_gamjet_eig0_mpf",  { {"appliesTo", "Resp_gamjet_mpf"},   {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/sys/zee_gamjet_eig0"},}},
+  {"Resp_zee_gamjet_eig1_mpf",  { {"appliesTo", "Resp_gamjet_mpf"},   {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/sys/zee_gamjet_eig1"},}},
+  {"Resp_zee_gamjet_eig2_mpf",  { {"appliesTo", "Resp_gamjet_mpf"},   {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/sys/zee_gamjet_eig2"},}},
 
+  {"Resp_hadw_fitprob_mpf",     { {"appliesTo", "Resp_hadw_mpf"},     {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/sys/hadw_ptave_fitprob"},}},
+  {"Resp_hadw_fitprob2_mpf",    { {"appliesTo", "Resp_hadw_mpf"},     {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/sys/hadw_ptave_fitprob2"},}},
 
-  {"Resp_hadw_fitprob",  { {"appliesTo", "Resp_hadw_mpf"}, {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/sys/hadw_ptave_fitprob"},}},
-  {"Resp_hadw_fitprob2", { {"appliesTo", "Resp_hadw_mpf"}, {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/sys/hadw_ptave_fitprob2"},}},
+  {"Resp_uncl_multijet_mpf",    { {"appliesTo", "Resp_multijet_mpf"}, {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_multijet_mpfu1"},}},
+  {"Resp_add_jet_multijet_mpf", { {"appliesTo", "Resp_multijet_mpf"}, {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_multijet_mpfn1"},}},
 
+  {"Resp_uncl_zjet_db",         { {"appliesTo", "Resp_zjet_db"},      {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_ptchs_zjet_mpfu1"},}},
+  {"Resp_add_jet_zjet_db",      { {"appliesTo", "Resp_zjet_db"},      {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_ptchs_zjet_mpfn1"},}},
+  {"Resp_uncl_gamjet_db",       { {"appliesTo", "Resp_gamjet_db"},    {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_ptchs_gamjet_mpfu1"},}},
+  {"Resp_add_jet_gamjet_db",    { {"appliesTo", "Resp_gamjet_db"},    {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_ptchs_gamjet_mpfn1"},}},
+  {"Resp_uncl_multijet_db",     { {"appliesTo", "Resp_multijet_db"},  {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_ptchs_multijet_mpfu1"},}},
+  {"Resp_add_jet_multijet_db",  { {"appliesTo", "Resp_multijet_db"},  {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_ptchs_multijet_mpfn1"},}},
 
-
-  // Loading hs[7]bm128_inactive_hkfsr_mpfchs1_hadw_eig0 fsr/hkfsr_mpfchs1_hadw_eig0
-  // Loading hs[15]bm128_inactive_hkfsr_mpfchs1_hadw_eig1 fsr/hkfsr_mpfchs1_hadw_eig1
-  // Loading hs[4]bm16_multijet_fsru1 fsr/hkfsr3_mpfchs1_multijet_mpfu1
-  // Loading hs[12]bm16_multijet_fsrn1 fsr/hkfsr3_mpfchs1_multijet_mpfn1
 };
 
 static const std::map<TString, std::map<TString,TString>> shapes_map = {
@@ -86,10 +108,12 @@ static const std::map<TString, std::map<TString,TString>> shapes_map = {
   {"fhh",       {{"ispositive", "0"}, {"type","fhh"}, {"appliesTo","Resp"}, {"form", "-0.7938-0.5798*pow(x/396.1,1.412)/(1+pow(x/396.1,1.412))*(1-pow(x/396.1,-1.412))"},}},
   {"feh",       {{"ispositive", "0"}, {"type","feh"}, {"appliesTo","Resp"}, {"form", "-0.2603-0.2196*pow(x/409.4,1.276)/(1+pow(x/409.4,1.276))*(1-pow(x/409.4,-1.276))"},}},
   {"fhw",       {{"ispositive", "0"}, {"type","fhw"}, {"appliesTo","Resp"}, {"form", "0.3*(0.9526-0.3883*(1+(pow(x/1285,2.46)-1)/(pow(x/1285,2.46)+1))+18.1/x-2.062*log(x)/x)"},}},
-  {"fl1-1",     {{"ispositive", "0"}, {"type","fl1"}, {"appliesTo","Resp"}, {"form", "(1-(0.350077+0.553560*log(x)-0.0527681*pow(log(x),2))/x-1)"},}},
+  {"(fl1-1)*100",{{"ispositive", "0"}, {"type","fl1"}, {"appliesTo","Resp"}, {"form", "100*(1-(0.350077+0.553560*log(x)-0.0527681*pow(log(x),2))/x-1)"},}},
   {"ftd-ftm",   {{"ispositive", "0"}, {"type","ftd-ftm"}, {"appliesTo","Resp"}, {"form", "3*((-0.116-0.6417*pow(x/208.,-0.3051)+23.63/x)-(0.2683-0.6994*pow(x/208.,-0.3051)+18.49/x))"},}},
   {"f1q3-1",    {{"ispositive", "0"}, {"type","f1q3-1"}, {"appliesTo","Resp"}, {"form", "0.01*(0.7966+0.9311*(pow(0.01*x,-1)-1))"},}},
+};
 
+static const std::map<TString, std::map<TString,TString>> shapes_pf_map = {
   {"ftmg_chf",  {{"ispositive", "0"}, {"type","ftd"}, {"appliesTo","chf"}, {"form", "1.982-2.678*(1+(pow(x/47.02,0.262)-1)/(pow(x/47.02,0.262)+1))+0.1494*pow(x,+0.3)-3.097/x"},}},
   {"ftmg_nhf",  {{"ispositive", "0"}, {"type","ftd"}, {"appliesTo","nhf"}, {"form", "-0.01022-0.1962*(1+(pow(x/4000,3.071)-1)/(pow(x/4000,3.071)+1))+0.04211*pow(x,+0.3)+0.01005/x"},}},
   {"ftmg_nef",  {{"ispositive", "0"}, {"type","ftd"}, {"appliesTo","nef"}, {"form", "0.07453+0.1457*(1+(pow(x/1131,-3.68)-1)/(pow(x/1131,-3.68)+1))-0.4155*pow(x,-0.3)-1.878/x"},}},

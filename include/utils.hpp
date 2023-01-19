@@ -80,12 +80,13 @@ std::string to_string_with_precision(const T value, const int n = 3) {
 }
 
 
-void RemoveZerosFromGraph(TGraphErrors *g);
+void RemoveZerosFromGraph(TGraphErrors *graph);
+void TruncateGraph(TGraphErrors *graph, const double& min = -1, const double& max=-1);
 
 double oplus(double a, double b);
 
-
-double fitError(TF1* func, TMatrixD err_matrix, double x, double k=1);
+double fitError(Double_t *x, Double_t *p);
+std::function<double(Double_t *, Double_t *)> fitError_wrapper(TF1* func, TMatrixD err_matrix);
 
 void FuncToGraph(TF1* func, TMatrixD err_matrix, TGraphErrors* graph, double k=1);
 void FuncToHist(TF1* func, TMatrixD err_matrix, TH1D* hist, double k=1);

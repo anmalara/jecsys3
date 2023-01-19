@@ -2,7 +2,7 @@ import os, ROOT
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 ROOT.gStyle.SetOptStat(0)
 ROOT.gStyle.SetOptFit(0)
-import ctypes
+import ctypes, math
 from collections import OrderedDict
 from tdrstyle_JERC import *
 import tdrstyle_JERC as TDR
@@ -13,8 +13,11 @@ class PlotGlobalFit():
         self.run = run
         self.year = year
         self.algo = algo
-        self.inputPath = '../rootfiles/'
+        self.inputPath = './rootfiles/'
         self.outputPath = './pdfs/'
+        if not os.path.exists(self.inputPath):
+            self.inputPath = '../rootfiles/'
+            self.outputPath = '../pdfs/'
         os.system('mkdir -p '+self.outputPath)
         self.filename = 'output'+run+'.root'
         TDR.cms_lumi = TDR.commonScheme['legend'][self.year]+', '+TDR.commonScheme['lumi'][self.year]+' fb^{-1}'
@@ -33,20 +36,26 @@ class PlotGlobalFit():
             ('hcal',    {'leg': 'had. hcal (p3)', 'color': rt.kAzure-2,  'npar':4, 'func': 'fhh'}),
             ('ecal',    {'leg': 'had. ecal (p4)', 'color': rt.kViolet+2, 'npar':4, 'func': 'feh'}),
             ('shower',  {'leg': 'shower (p5)',    'color': rt.kOrange,   'npar':6, 'func': 'fhw'}),
-            ('offset',  {'leg': 'offset (p6)',    'color': rt.kTeal+2,   'npar':3, 'func': 'fl1-1'}),
+            ('offset',  {'leg': 'offset (p6)',    'color': rt.kTeal+2,   'npar':3, 'func': '(fl1-1)*100'}),
             ('mctrack', {'leg': 'MC tracks (p7)', 'color': rt.kGreen-1,  'npar':4, 'func': 'ftd-ftm'}),
             ('flav',    {'leg': 'flavor (p8)',    'color': rt.kOrange+1, 'npar':3, 'func': 'f1q3-1'}),
             ])
 
         self.infos = OrderedDict()
 
-        self.infos['herr']    = {'objName':'herr',               'legName': 'herr',            'legStyle': 'f',   'plotinfo': {'opt':'e3', 'fcolor':ROOT.kCyan+1, 'lcolor':ROOT.kCyan+1, 'msize':0} }
-        self.infos['hjesref'] = {'objName':'herr_ref',           'legName': 'herr_ref',        'legStyle': 'f',   'plotinfo': {'opt':'e3', 'fcolor':ROOT.kYellow+1, 'lcolor':ROOT.kYellow+1, 'msize':0} }
-        self.infos['jesFit']  = {'objName':'jesFit_func_Resp',   'legName': None,              'legStyle': '',    'plotinfo': { 'lcolor' : ROOT.kBlack, 'lstyle' : ROOT.kSolid, 'lwidth' : 1,} }
+        self.infos['herr']                = {'objName':'herr',                     'legName': 'herr',                                        'legType':'extra', 'legStyle': 'f',   'plotinfo': {'opt':'e3', 'fcolor':ROOT.kCyan+1, 'lcolor':ROOT.kCyan+1, 'msize':0} }
+        self.infos['hjesref']             = {'objName':'herr_ref',                 'legName': 'herr_ref',                                    'legType':'extra', 'legStyle': 'f',   'plotinfo': {'opt':'e3', 'fcolor':ROOT.kYellow+1, 'lcolor':ROOT.kYellow+1, 'msize':0} }
+        self.infos['jesFit']              = {'objName':'jesFit_Resp',              'legName': '#chi^{2}/n.d.f.',                             'legType':'extra', 'legStyle': 'l',   'plotinfo': { 'lcolor' : ROOT.kBlack, 'lstyle' : ROOT.kSolid,  'lwidth' : 1,} }
+        self.infos['jesFit_down']         = {'objName':'jesFit_down_Resp',         'legName': None,                                          'legType':'',      'legStyle': 'l',   'plotinfo': { 'lcolor' : ROOT.kBlack, 'lstyle' : ROOT.kDashed, 'lwidth' : 1,} }
+        self.infos['jesFit_up']           = {'objName':'jesFit_up_Resp',           'legName': None,                                          'legType':'',      'legStyle': 'l',   'plotinfo': { 'lcolor' : ROOT.kBlack, 'lstyle' : ROOT.kDashed, 'lwidth' : 1,} }
 
-        self.infos['zjet']    = {'objName':'Resp_zjet_mpf',      'legName': 'Z+jet',           'legStyle': 'lep', 'plotinfo': {'opt':'p', 'msize':1.2, 'marker': ROOT.kFullStar,   'mcolor':ROOT.kRed+1} }
-        self.infos['gjet']    = {'objName':'Resp_gamjet_mpf',    'legName': '#gamma+jet',      'legStyle': 'lep', 'plotinfo': {'opt':'p', 'msize':0.8, 'marker': ROOT.kFullSquare, 'mcolor':ROOT.kBlue+1} }
-        self.infos['hadw']    = {'objName':'Resp_hadw_mpf',      'legName': 'W#rightarrow qq', 'legStyle': 'lep', 'plotinfo': {'opt':'p', 'msize':0.9, 'marker': ROOT.kFullCircle, 'mcolor':ROOT.kGreen+2} }
+        for mode in ['mpf','db']:
+            self.infos['zjet_'+mode]            = {'objName':'Resp_zjet_'+mode,            'legName': 'Z+jet',                                       'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':1.2, 'marker': ROOT.kFullStar if mode!='db' else ROOT.kOpenStar,                 'mcolor':ROOT.kRed+1} }
+            self.infos['gjet_'+mode]            = {'objName':'Resp_gamjet_'+mode,          'legName': '#gamma+jet',                                  'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.8, 'marker': ROOT.kFullSquare if mode!='db' else ROOT.kOpenSquare,             'mcolor':ROOT.kBlue+1} }
+            self.infos['hadw_'+mode]            = {'objName':'Resp_hadw_'+mode,            'legName': 'W#rightarrow qq',                             'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.9, 'marker': ROOT.kFullCircle if mode!='db' else ROOT.kOpenCircle,             'mcolor':ROOT.kGreen+2} }
+            self.infos['multijet_'+mode]        = {'objName':'Resp_multijet_'+mode,        'legName': 'Multijet (p_{T}^{'+ScaleLeg('leading')+'})',  'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.5, 'marker': ROOT.kFullTriangleUp if mode!='db' else ROOT.kOpenTriangleUp,     'mcolor':ROOT.kBlack} }
+            self.infos['multijet_recoil_'+mode] = {'objName':'Resp_multijet_recoil_'+mode, 'legName': 'Multijet (p_{T}^{'+ScaleLeg('recoil')+'})',   'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.5, 'marker': ROOT.kFullTriangleDown if mode!='db' else ROOT.kOpenTriangleDown, 'mcolor':ROOT.kGray+1} }
+            self.infos['incljet_'+mode]         = {'objName':'Resp_incljet_'+mode,         'legName': 'Incl. jet',                                   'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.8, 'marker': ROOT.kFullDiamond if mode!='db' else ROOT.kOpenDiamond,           'mcolor':ROOT.kOrange+2} }
 
         pf_colors = OrderedDict([('Resp',ROOT.kBlack), ('chf',ROOT.kRed+1), ('nhf',ROOT.kGreen+2), ('nef',ROOT.kAzure+2)])
         self.infos_PF = OrderedDict()
@@ -55,6 +64,7 @@ class PlotGlobalFit():
             self.infos_PF[mode+'_postfit'] = {'objName':mode+'_zjet_mpf_postfit', 'legName': mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'mcolor':color, 'marker':ROOT.kOpenCircle} }
             # self.infos_PF[mode+'_variation'] = {'objName':mode+'_zjet_mpf_variation', 'legName': mode, 'legStyle': 'lep', 'plotinfo': {'opt':'e3', 'fcolor':color, 'lcolor':color} }
 
+        # Load objects
         for name, info in self.infos.items():
             if 'Resp_' in info['objName']:
                 for mode in ['prefit', 'postfit', 'raw']:
@@ -64,6 +74,14 @@ class PlotGlobalFit():
 
         for name, info in self.infos_PF.items():
             info['obj'] = self.inputfile.Get(info['objName'])
+
+        # Remove null objects
+        for name, info in self.infos.copy().items():
+            if ('obj_raw' in info and not info['obj_raw']):
+                del self.infos[name]
+            if ('recoil' in name and not name.replace('_recoil','') in self.infos.keys()):
+                del self.infos[name]
+
 
     def FixXAsisPartition(self, shift=None):
         self.canv.SetLogx(True)
@@ -88,31 +106,43 @@ class PlotGlobalFit():
         self.canv = tdrCanvas('PlotGlobalFit'+self.year+canvName, XMin, XMax, YMin, YMax, 'p_{T} [GeV]', yName, square=kSquare, isExtraSpace=True)
         self.FixXAsisPartition()
         l,r,t,b = (self.canv.GetLeftMargin(),self.canv.GetRightMargin(),self.canv.GetTopMargin(),self.canv.GetBottomMargin())
-        # self.leg = {}
-        xpos = l+0.04*(1-l-r)
+        nSamples_mpf   = sum(info['legType']=='mpf'   for info in self.infos.values())
+        nSamples_db    = sum(info['legType']=='db'    for info in self.infos.values())
+        nSamples_extra = sum(info['legType']=='extra' for info in self.infos.values())
+        xpos = l+0.04*(1-l-r)+0.02
         ypos = b+0.04*(1-t-b)
-        # self.leg = tdrLeg(xpos,ypos,xpos+0.2,ypos+0.04*4, textSize=0.04)
-        xpos = 1-r-0.04*(1-l-r)-0.1
+        self.legs = {}
+        self.legs['extra'] = tdrLeg(xpos,ypos,xpos+0.2,ypos+0.04*(nSamples_extra+1), textSize=0.04)
+        xpos = 1-r-0.04*(1-l-r)-0.07
         ypos = 1-t-0.04*(1-t-b)
-        self.leg = tdrLeg(xpos-0.2,ypos-0.04*2,xpos,ypos, textSize=0.04)
-        self.leg = tdrLeg(xpos-0.2,ypos-0.04*4,xpos,ypos, textSize=0.04)
+        self.legs['mpf'] = tdrLeg(xpos-0.2,ypos-0.04*(nSamples_mpf+1),xpos,ypos, textSize=0.04)
+        self.legs['db'] = tdrLeg(xpos-0.22,ypos-0.04*(nSamples_db+1),xpos-0.2,ypos, textSize=0.04)
+        tdrHeader(self.legs['mpf'], 'MPF', textAlign=23)
+        tdrHeader(self.legs['db'], 'DB', textAlign=33)
         self.line = ROOT.TLine(XMin, 1, XMax, 1)
         tdrDrawLine(self.line, lcolor=ROOT.kBlack, lstyle=ROOT.kDashed, lwidth=1)
 
     def PlotResponse(self, canvName):
         self.CreateCanvasGlobalFit(canvName)
-        for info in self.infos.values():
+        for name, info in self.infos.items():
             obj = info['obj_'+canvName if 'obj_'+canvName in info else 'obj']
-            if not 'jesFit_func' in info['objName']:
+            if not 'jesFit' in info['objName']:
                 tdrDraw(obj, **info['plotinfo'])
             elif canvName=='postfit':
                 tdrDrawLine(obj, **info['plotinfo'])
-            if info['legName']:
-                self.leg.AddEntry(obj, info['legName'], info['legStyle'])
+            leg_type = 'extra'
+            if 'db' in name:
+                self.legs['db'].AddEntry(obj, ' ', info['legStyle'])
+            elif 'mpf' in name:
+                self.legs['mpf'].AddEntry(obj, info['legName'], info['legStyle'])
+            else:
+                if info['legName']:
+                    self.legs['extra'].AddEntry(obj, info['legName'], info['legStyle'])
 
         self.line.Draw('same')
         fixOverlay()
         self.canv.SaveAs(os.path.join(self.outputPath, self.filename.replace('.root', '_'+canvName+'.pdf')))
+        self.canv.SaveAs(os.path.join(self.outputPath, canvName+'_zghm_new.pdf'))
         self.canv.Close()
 
 
@@ -139,7 +169,7 @@ class PlotGlobalFit():
     def PlotShapes(self, mode):
         XMin, XMax = (15, 4500)
         # YMin, YMax = (-2+0.001,2.5-0.001)
-        YMin, YMax = (-3,3)
+        YMin, YMax = (-5,5)
         canvName = 'GlobalFitShapes_'+mode+self.year
         self.canv = tdrCanvas(canvName, XMin, XMax, YMin, YMax, 'p_{T} [GeV]', 'JES change (%)', square=kSquare, isExtraSpace=True)
         self.FixXAsisPartition()

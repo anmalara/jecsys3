@@ -47,6 +47,7 @@ public:
   void LoadReference();
   void LoadFSR();
   void ScaleFSR();
+  void CleanGraphs();
   void SetupFitFunction();
   void DoGlobalFit();
   void StoreFitOutput();
@@ -89,6 +90,8 @@ void jesFitter(Int_t& npar, Double_t* grad, Double_t& chi2, Double_t* par, Int_t
 static std::map<TString, ShapeContainer*> shapes;
 static std::map<TString, DataContainer*> my_data;
 static std::map<TString, SystematicContainer*> sources;
+
+static std::map<TString, DataContainer*> recoils;
 
 static TF1* _jesFit;
 

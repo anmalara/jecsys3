@@ -22,21 +22,36 @@ void RemoveZerosFromGraph(TGraphErrors *graph) {
   }
 }
 
+void TruncateGraph(TGraphErrors *graph, const double& min, const double& max){
+  for (int i = graph->GetN()-1; i != -1; --i) {// Must go backwards to keep point ordering
+    double x = graph->GetX()[i];
+    if (min>0 && x<min) graph->RemovePoint(i);
+    if (max>0 && x>max) graph->RemovePoint(i);
+  }
+}
+
+
 double oplus(double a, double b) {return sqrt(a*a + b*b);};
 
-double fitError(TF1* func, TMatrixD err_matrix, double x, double k){
-  int n_pars = func->GetNpar();
-  // Partial derivatives as differentials with 10% step size
-  std::vector<double> grad(n_pars);
-  func->GradientPar(&x, &grad[0]);
-  // Perform standard error propagation
-  double sumerr2(0);
-  for (int i = 0; i != n_pars; ++i) {
-    for (int j = 0; j != n_pars; ++j) {
-      sumerr2 += err_matrix[i][j]*grad[i]*grad[j];
+
+double fitError(Double_t *x, Double_t *p) {return -1000;}
+
+std::function<double(Double_t *, Double_t *)> fitError_wrapper(TF1* func, TMatrixD err_matrix){
+  return [func, err_matrix](Double_t *x, Double_t *p) -> double {
+
+    int n_pars = func->GetNpar();
+    // Partial derivatives as differentials with 10% step size
+    std::vector<double> grad(n_pars);
+    func->GradientPar(x, &grad[0]);
+    // Perform standard error propagation
+    double sumerr2(0);
+    for (int i = 0; i != n_pars; ++i) {
+      for (int j = 0; j != n_pars; ++j) {
+        sumerr2 += err_matrix[i][j]*grad[i]*grad[j];
+      }
     }
-  }
-  return (func->Eval(x) + k*sqrt(sumerr2));
+    return (func->Eval(*x) + p[0]*sqrt(sumerr2));
+  };
 }
 
 
@@ -46,7 +61,8 @@ void FuncToGraph(TF1* func, TMatrixD err_matrix, TGraphErrors *graph, double k){
   for (int i = 0; i < gr->GetN(); ++i) {
     double x = gr->GetX()[i];
     graph->AddPoint(x, gr->GetY()[i]);
-    graph->SetPointError(i, 0., fitError(func, err_matrix, x,k) - gr->GetY()[i]);
+    double err = fitError_wrapper(func, err_matrix)(&x,&k);
+    graph->SetPointError(i, 0., err - gr->GetY()[i]);
   }
 }
 
@@ -55,7 +71,8 @@ void FuncToHist(TF1* func, TMatrixD err_matrix, TH1D* hist, double k){
   for (int j = 1; j != hist->GetNbinsX()+1; ++j) {
     double x = hist->GetBinCenter(j);
     hist->SetBinContent(j, x, func->Eval(x));
-    hist->SetBinError(j, 0., fitError(func, err_matrix, x,k) - func->Eval(x));
+    double err = fitError_wrapper(func, err_matrix)(&x,&k);
+    hist->SetBinError(j, 0., err - func->Eval(x));
   }
 }
 
