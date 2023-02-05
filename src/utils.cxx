@@ -95,7 +95,6 @@ void multiplyGraph(TGraphErrors *graph, TF1 *func) {
 
 void PropagateErrorToGraph(TGraphErrors *graph, std::vector<TF1*> funcs, TMatrixD err_matrix) {
   int nfuncs = funcs.size();
-  // int n_pars = func->GetNpar();
   for (int i = 0; i != graph->GetN(); ++i) {
     double x = graph->GetX()[i];
     double xerr = graph->GetEX()[i];
@@ -108,4 +107,29 @@ void PropagateErrorToGraph(TGraphErrors *graph, std::vector<TF1*> funcs, TMatrix
     }
     graph->SetPointError(i, xerr, sqrt(sumerr2));
   }
+}
+
+
+TGraphErrors* MergeGraphs(TGraphErrors *graph1, TGraphErrors *graph2){
+  std::vector<double> x_vals, y_vals, x_errs, y_errs;
+  for (int bin = 0; bin < graph1->GetN(); bin++) {
+    x_vals.push_back(graph1->GetX()[bin]);
+    y_vals.push_back(graph1->GetY()[bin]);
+    x_errs.push_back(graph1->GetEX()[bin]);
+    y_errs.push_back(graph1->GetEY()[bin]);
+  }
+  if (!std::is_sorted(x_vals.begin(), x_vals.end())){
+    throw std::invalid_argument("Unsorted graph used.");
+  }
+  if (x_vals.size()==0) return (TGraphErrors*)graph2->Clone();
+  for (int bin = 0; bin < graph2->GetN(); bin++) {
+    int index = closest(x_vals,graph2->GetX()[bin]);
+    x_vals.insert(x_vals.begin()+index,graph2->GetX()[bin]);
+    y_vals.insert(y_vals.begin()+index,graph2->GetY()[bin]);
+    x_errs.insert(x_errs.begin()+index,graph2->GetEX()[bin]);
+    y_errs.insert(y_errs.begin()+index,graph2->GetEY()[bin]);
+  }
+  TGraphErrors* out = new TGraphErrors(x_vals.size(), &x_vals[0], &y_vals[0], &x_errs[0], &y_errs[0]);
+  return out;
+
 }

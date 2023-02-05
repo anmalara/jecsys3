@@ -65,7 +65,7 @@ TString GlobalFit::ReplaceDefault(TString name) {
 void GlobalFit::LoadInputs(){
   for (auto [name, info]: input_hnames_map) {
     if (FindInVector(input_hnames,name)<0) {
-      PrintLine("Skipping hist: "+name, yellow);
+      if (debug) PrintLine("Skipping hist: "+name, yellow);
       continue;
     }
     TString hname = ReplaceDefault(info["hname"]);
@@ -74,7 +74,6 @@ void GlobalFit::LoadInputs(){
     my_data[name] = new DataContainer(name, info["type"], hname, g.get());
     nTotalPoints += my_data[name]->GetN();
     if (debug) {PrintLine("successfully", yellow); cout << *my_data[name] << endl;}
-    cout << "Adding " << my_data[name]->GetN() << " points for " << name << endl;
   }
 
 
@@ -87,11 +86,36 @@ void GlobalFit::LoadInputs(){
   }
 }
 
+
+void GlobalFit::LoadPFContainers(){
+  for (auto type: types) {
+    if (type=="Resp") continue;
+    if (debug) {PrintLoading("PF", type, "");cout<<reset << endl;}
+    pf_variations[type] = new PFCompositionContainer(type, type);
+    for (auto [name, info]: pf_composition_map) {
+      if (type!=info["type"]) continue;
+      if (FindInVector(samples,info["appliesTo"])<0) {
+        if (debug) PrintLine("Skipping pf: "+name, yellow);
+        continue;
+      }
+      TString hname = ReplaceDefault(info["hname"]);
+      if (debug) PrintLoading("hist", name, hname);
+      unique_ptr<TGraphErrors> g; g.reset((TGraphErrors*)input_files[info["fname"].Data()]->Get(hname));
+      pf_variations[type]->add_raw(g.get(), name);
+      TruncateGraph(g.get(),std::stod(info["min"].Data()), std::stod(info["max"].Data()));
+      pf_variations[type]->add_graph(g.get(), name);
+      if (debug) PrintLine("successfully", yellow);
+    }
+    pf_variations[type]->set_combination();
+    cout << *pf_variations[type] << endl;
+  }
+}
+
 void GlobalFit::LoadSystematics(){
   for (auto [name, info]: sources_hnames_map) {
     TString appliesTo = info["appliesTo"];
     if (FindInVector(input_hnames,appliesTo)<0) {
-      PrintLine("Skipping source: "+name+" index: "+to_string(FindInVector(input_hnames,appliesTo)), yellow);
+      if (debug) PrintLine("Skipping source: "+name+" index: "+to_string(FindInVector(input_hnames,appliesTo)), yellow);
       continue;
     }
     TString hname = ReplaceDefault(info["hname"]);
@@ -121,7 +145,7 @@ void GlobalFit::LoadShapes(){
   for (auto [name, info]: shapes_map) {
     TString appliesTo = info["appliesTo"];
     if (FindInVector(types,appliesTo)<0) {
-      PrintLine("Skipping source: "+name+" index: "+to_string(FindInVector(types,appliesTo)), yellow);
+      if (debug) PrintLine("Skipping source: "+name+" index: "+to_string(FindInVector(types,appliesTo)), yellow);
       continue;
     }
     if (debug) PrintLoading("shape", name, "");
@@ -136,11 +160,11 @@ void GlobalFit::LoadShapes(){
   for (auto [name, info]: shapes_pf_map) {
     TString appliesTo = info["appliesTo"];
     if (FindInVector(types,appliesTo)<0) {
-      PrintLine("Skipping source: "+name+" index: "+to_string(FindInVector(types,appliesTo)), yellow);
+      if (debug) PrintLine("Skipping source: "+name+" index: "+to_string(FindInVector(types,appliesTo)), yellow);
       continue;
     }
     if (debug) PrintLoading("shape", name, "");
-    int index = index = shapes[info["type"]]->index();
+    int index = shapes[info["type"]]->index();
     if (info["appliesTo"]=="Resp") throw std::invalid_argument("This shape("+name+") should NOT be applied to Resp");
     shapes[name] = new ShapeContainer(name,info["form"],info["appliesTo"],index,atoi(info["ispositive"]));
     assert(shapes[name]);
@@ -165,7 +189,7 @@ void GlobalFit::LoadFSR(){
   for (auto [name, info]: kfsr_hnames_map) {
     TString appliesTo = info["appliesTo"];
     if (FindInVector(input_hnames,appliesTo)<0) {
-      PrintLine("Skipping fsr: "+name+" index: "+to_string(FindInVector(input_hnames,appliesTo)), yellow);
+      if (debug) PrintLine("Skipping fsr: "+name+" index: "+to_string(FindInVector(input_hnames,appliesTo)), yellow);
       continue;
     }
     TString hname = ReplaceDefault(info["hname"]);
@@ -307,7 +331,7 @@ void GlobalFit::DoGlobalFit(){
       }
     }
   }
-  cout << " FITS checks:" << nFitPars << " " << npar_true << " " << nNuisancePars << " " << nsrc_true << endl;
+  cout << red << " FITS checks:" << nFitPars << " " << npar_true << " " << nNuisancePars << " " << nsrc_true << reset << endl;
   // assert(nFitPars==npar_true);
   // assert(nNuisancePars==nsrc_true);
 
@@ -350,6 +374,16 @@ void GlobalFit::DoGlobalFit(){
     double err = fitter->GetParError(nFitPars+src->index());
     PrintParameter(name, val, err);
   }
+
+  PrintLine("Error matrix:", blue);
+
+  for (int i = 0; i != nFitPars; ++i) {
+    for (int j = 0; j != nFitPars; ++j) {
+      cout << Form("%10.4g ", (*error_matrix.get())[i][j]);
+    } // for j
+    cout << endl;
+  } // for i
+  cout << endl;
 }
 
 void GlobalFit::StoreFitOutput(){
@@ -367,7 +401,7 @@ void GlobalFit::StoreFitOutput(){
   // Convert global fit function into hist and graph
   double binning[] = { /*1, 5, 6, 8,*/ 10, 12, 15, 18, 21, 24, 28, 32, 37, 43, 49, 56, 64, 74, 84, 97, 114, 133, 153, 174, 196, 220, 245, 272, 300, 330, 362, 395, 430, 468, 507, 548, 592, 638, 686, 737, 790, 846, 905, 967, 1032, 1101, 1172, 1248, 1327, 1410, 1497, 1588, 1684, 1784, 1890, 2000, 2116, 2238, 2366, 2500, 2640, 2787, 2941, 3103, 3273, 3450, 3637, 3832, 4037, 4252, 4477, 4713, 4961, 5220, 5492, 5777, 6076, 6389, 6717, 7000};
   const double nbins = sizeof(binning)/sizeof(binning[0])-1;
-  for (auto type: all_types){
+  for (auto type: types){
     current_obs = type; // this is needed inside _jesFit
     // convert TF1 to TGraphErrors
     TGraphErrors* graph = new TGraphErrors();
@@ -400,14 +434,44 @@ void GlobalFit::StoreFitOutput(){
     multiplyGraph(output,scale);
     multiplyGraph(variation,scale);
     std::vector<TF1*> funcs;
-    for (auto [name,shape]: shapes){
-      if (shape->appliesTo()==dt->type()) funcs.push_back(shape->func());
+    for (auto [name_,shape]: shapes){
+      if (shape->appliesTo()==dt->type()) {
+        funcs.push_back(shape->func());
+      }
     }
-    PropagateErrorToGraph(variation, funcs, *error_matrix.get());
     raw->Write(name+"_raw", TObject::kOverwrite);
     input->Write(name+"_prefit",TObject::kOverwrite);
     output->Write(name+"_postfit",TObject::kOverwrite);
-    variation->Write(name+"_variation",TObject::kOverwrite);
+    variation->Write(name+"_variation_input",TObject::kOverwrite);
+    PropagateErrorToGraph(variation, funcs, *error_matrix.get());
+    variation->Write(name+"_variation_output",TObject::kOverwrite);
+  }
+
+  for (auto [name,pf]: pf_variations){
+    TGraphErrors* raw = pf->raw();
+    TGraphErrors* input = pf->input();
+    TGraphErrors* output = pf->output();
+    TGraphErrors* variation = pf->variation();
+    double scale = 1./ScaleFullSimShape; // transform PF comp in percentage
+    multiplyGraph(input,scale);
+    multiplyGraph(output,scale);
+    multiplyGraph(variation,scale);
+    std::vector<TF1*> funcs;
+    for (auto [name_,shape]: shapes){
+      if (shape->appliesTo()==pf->type()) {
+        funcs.push_back(shape->func());
+      }
+    }
+    raw->Write(name+"_raw", TObject::kOverwrite);
+    input->Write(name+"_prefit",TObject::kOverwrite);
+    output->Write(name+"_postfit",TObject::kOverwrite);
+    variation->Write(name+"_variation_input",TObject::kOverwrite);
+    PropagateErrorToGraph(variation, funcs, *error_matrix.get());
+    variation->Write(name+"_variation_output",TObject::kOverwrite);
+    for (auto &x: pf->raws()) { multiplyGraph(x,scale); x->Write(x->GetName(), TObject::kOverwrite); }
+    for (auto &x: pf->inputs()) { multiplyGraph(x,scale); x->Write(x->GetName(), TObject::kOverwrite); }
+    for (auto &x: pf->outputs()) { multiplyGraph(x,scale); x->Write(x->GetName(), TObject::kOverwrite); }
+    for (auto &x: pf->variations()) { multiplyGraph(x,scale); x->Write(x->GetName(), TObject::kOverwrite); }
   }
 
   for (auto [name,recoil]: recoils){
@@ -444,6 +508,7 @@ void GlobalFit::StoreFitOutput(){
 
 void GlobalFit::Run(){
   LoadInputs();
+  LoadPFContainers();
   LoadSystematics();
   LoadShapes();
   LoadReference();
@@ -511,15 +576,15 @@ void jesFitter(Int_t& npar, Double_t* grad, Double_t& chi2, Double_t* par, Int_t
     // - then calculate chi2 adding up residuals + nuisance parameters
     for (auto [dt_name,dt]: my_data){
       // if (FindInString("recoil",dt_name.Data())) continue;
-      cout << *dt << endl;
+      // cout << *dt << endl;
       TString dt_type         = dt->type();
       TGraphErrors *graph_input   = dt->input();  assert(graph_input);
       TGraphErrors *graph_output    = dt->output(); assert(graph_output);
       TGraphErrors *graph_variation = dt->variation(); assert(graph_variation);
 
       DataContainer* dt_recoil;
-      bool is_multijet = dt_name.Contains("multijet");
-      if (is_multijet) {
+      bool is_multijet_resp = dt_name.Contains("multijet") && dt_type=="Resp";
+      if (is_multijet_resp) {
         dt_recoil = recoils[TString(dt_name).ReplaceAll("multijet","multijet_recoil")];
       }
 
@@ -535,16 +600,16 @@ void jesFitter(Int_t& npar, Double_t* grad, Double_t& chi2, Double_t* par, Int_t
         _jesFit->SetParameters(fit_pars);
         double fit = _jesFit->EvalPar(&pt,fit_pars);
 
-        // For multijet balancing, multiply data by reference JES
-        if (is_multijet) {
-          // what is happening??
-          double ptref = dt_recoil->raw()->GetX()[bin];
-          double fitRef = _jesFit->EvalPar(&ptref,par);
-          // double fitRef = _jesFit->EvalPar(&pt,par);
-          cout << "in " << ptref << " " << pt << " " << data_point << " " << fitRef << " out " << data_point*fitRef << endl;
-          // data_point *= fitRef;
-          // sigma *= fitRef;
-        }
+        // // For multijet balancing, multiply data by reference JES
+        // if (is_multijet_resp) {
+        //   // what is happening?? Should be removed
+        //   double ptref = dt_recoil->raw()->GetX()[bin];
+        //   double fitRef = _jesFit->EvalPar(&ptref,par);
+        //   // double fitRef = _jesFit->EvalPar(&pt,par);
+        //   // cout << "in " << ptref << " " << pt << " " << data_point << " " << fitRef << " out " << data_point*fitRef << endl;
+        //   // data_point *= fitRef;
+        //   // sigma *= fitRef;
+        // }
 
         // Calculate total shift caused by all nuisance parameters
         double shift = 0;
@@ -564,7 +629,7 @@ void jesFitter(Int_t& npar, Double_t* grad, Double_t& chi2, Double_t* par, Int_t
 
           TF1* func = shape->func(); assert(func);
           shift += fit_pars[shape->index()] * func->Eval(pt) * GlobalFit::ScaleFullSimShape;
-          cout << cyan << "Using func " << shape_name << " " << dt_type << " " << shape->index() << " " << pt << " " << func->Eval(pt) << " " << fit_pars[shape->index()] << " " << fit_pars[shape->index()] * func->Eval(pt) * GlobalFit::ScaleFullSimShape << reset << endl;
+          // cout << cyan << "Using func " << shape_name << " " << dt_type << " " << shape->index() << " " << pt << " " << func->Eval(pt) << " " << fit_pars[shape->index()] << " " << fit_pars[shape->index()] * func->Eval(pt) * GlobalFit::ScaleFullSimShape << reset << endl;
         }
 
         // Add chi2 from residual
@@ -576,11 +641,12 @@ void jesFitter(Int_t& npar, Double_t* grad, Double_t& chi2, Double_t* par, Int_t
           chi = (data_point + shift - fit) / oplus(sigma,GlobalFit::globalErrMin);
         } else {
           chi = max(fabs(data_point - shift) - 0.01*fitPFG_delta,0.) / sigma;
+          // cout << red << "FIND ME " << dt_type << " " << chi << " " << shift << reset << endl;
         }
 
         chi2 += chi * chi;
         // cout << cyan << "Adding to chi2 " << chi * chi << " " << dt_name << " " << pt << " " << data_point << " " << shift << " " << fit << " " << sigma << reset << endl;
-        cout << cyan << "Adding to chi2 " << data_point << " " << sigma << " " << shift << " " << 0 << " " << chi << reset << endl;
+        // cout << cyan << "Adding to chi2 " << data_point << " " << sigma << " " << shift << " " << 0 << " " << chi << reset << endl;
         ++nFittedDataPoints;
         //
         // // Store shifted data
@@ -589,20 +655,20 @@ void jesFitter(Int_t& npar, Double_t* grad, Double_t& chi2, Double_t* par, Int_t
         graph_variation->SetPoint(bin, pt, shift);
 
         // For multijets, store also downward extrapolation
-        if (is_multijet) {
+        if (is_multijet_resp) {
           // TGraphErrors *recoil_raw       = dt_recoil->raw();  assert(recoil_raw);
           TGraphErrors *recoil_output    = dt_recoil->output(); assert(recoil_output);
           double ptref =recoil_output->GetX()[bin];
           double jesref = _jesFit->EvalPar(&ptref, par);
           double jes = _jesFit->EvalPar(&pt, par);
-          cout << "Shifting " << pt << " " << ptref << endl;
+          // cout << "Shifting " << pt << " " << ptref << endl;
           recoil_output->SetPoint(bin, ptref, jes * jesref / (data_point + shift));
         } // multijet
       } // for point in graph
     } // for graph
 
     // Add chi2 from nuisance parameters
-    if (debug) PrintLine("chi2 before nuis: "+to_string_with_precision(chi2),yellow);
+    // if (debug) PrintLine("chi2 before nuis: "+to_string_with_precision(chi2),yellow);
     for (int ipar = 0; ipar < _nNuisancePars; ++ipar) {
       chi2 += nuisance_pars[ipar]*nuisance_pars[ipar];
       ++nFittedDataPoints;
@@ -626,6 +692,6 @@ void jesFitter(Int_t& npar, Double_t* grad, Double_t& chi2, Double_t* par, Int_t
     return;
   }
 
-  cout << yellow << "chi2: " << chi2 << reset << endl;
+  // cout << yellow << "chi2: " << chi2 << reset << endl;
 
 } // jesFitter

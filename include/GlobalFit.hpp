@@ -42,6 +42,7 @@ public:
   void OpenFiles();
   void Run();
   void LoadInputs();
+  void LoadPFContainers();
   void LoadSystematics();
   void LoadShapes();
   void LoadReference();
@@ -90,6 +91,8 @@ void jesFitter(Int_t& npar, Double_t* grad, Double_t& chi2, Double_t* par, Int_t
 static std::map<TString, ShapeContainer*> shapes;
 static std::map<TString, DataContainer*> my_data;
 static std::map<TString, SystematicContainer*> sources;
+
+static std::map<TString, PFCompositionContainer*> pf_variations;
 
 static std::map<TString, DataContainer*> recoils;
 

@@ -8,6 +8,18 @@ from tdrstyle_JERC import *
 import tdrstyle_JERC as TDR
 TDR.extraText  = 'Preliminary'
 
+# extraname  = '_zghm'
+extraname  = '_z'
+# extraname  = '_g'
+# extraname  = '_h'
+
+extraname += '_mpfdb'
+# extraname += '_mpf'
+# extraname += '_db'
+
+extraname += '_pf'
+# extraname += '_nopf'
+
 class PlotGlobalFit():
     def __init__(self, run='Run2Test', year='Run2', algo='AK4 CHS'):
         self.run = run
@@ -41,8 +53,13 @@ class PlotGlobalFit():
             ('flav',    {'leg': 'flavor (p8)',    'color': rt.kOrange+1, 'npar':3, 'func': 'f1q3-1'}),
             ])
 
-        self.infos = OrderedDict()
+        self.shapes = OrderedDict()
+        for shape, info in self.functionforms.items():
+            for mode in ['input','prefit','postfit']:
+                for pf in ['','_chf','_nhf','_nef']:
+                    self.shapes[shape+mode+pf] = self.inputfile.Get('shape_'+mode+'_'+info['func']+pf)
 
+        self.infos = OrderedDict()
         self.infos['herr']                = {'objName':'herr',                     'legName': 'herr',                                        'legType':'extra', 'legStyle': 'f',   'plotinfo': {'opt':'e3', 'fcolor':ROOT.kCyan+1, 'lcolor':ROOT.kCyan+1, 'msize':0} }
         self.infos['hjesref']             = {'objName':'herr_ref',                 'legName': 'herr_ref',                                    'legType':'extra', 'legStyle': 'f',   'plotinfo': {'opt':'e3', 'fcolor':ROOT.kYellow+1, 'lcolor':ROOT.kYellow+1, 'msize':0} }
         self.infos['jesFit']              = {'objName':'jesFit_Resp',              'legName': '#chi^{2}/n.d.f.',                             'legType':'extra', 'legStyle': 'l',   'plotinfo': { 'lcolor' : ROOT.kBlack, 'lstyle' : ROOT.kSolid,  'lwidth' : 1,} }
@@ -53,16 +70,20 @@ class PlotGlobalFit():
             self.infos['zjet_'+mode]            = {'objName':'Resp_zjet_'+mode,            'legName': 'Z+jet',                                       'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':1.2, 'marker': ROOT.kFullStar if mode!='db' else ROOT.kOpenStar,                 'mcolor':ROOT.kRed+1} }
             self.infos['gjet_'+mode]            = {'objName':'Resp_gamjet_'+mode,          'legName': '#gamma+jet',                                  'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.8, 'marker': ROOT.kFullSquare if mode!='db' else ROOT.kOpenSquare,             'mcolor':ROOT.kBlue+1} }
             self.infos['hadw_'+mode]            = {'objName':'Resp_hadw_'+mode,            'legName': 'W#rightarrow qq',                             'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.9, 'marker': ROOT.kFullCircle if mode!='db' else ROOT.kOpenCircle,             'mcolor':ROOT.kGreen+2} }
-            self.infos['multijet_'+mode]        = {'objName':'Resp_multijet_'+mode,        'legName': 'Multijet (p_{T}^{'+ScaleLeg('leading')+'})',  'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.5, 'marker': ROOT.kFullTriangleUp if mode!='db' else ROOT.kOpenTriangleUp,     'mcolor':ROOT.kBlack} }
-            self.infos['multijet_recoil_'+mode] = {'objName':'Resp_multijet_recoil_'+mode, 'legName': 'Multijet (p_{T}^{'+ScaleLeg('recoil')+'})',   'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.5, 'marker': ROOT.kFullTriangleDown if mode!='db' else ROOT.kOpenTriangleDown, 'mcolor':ROOT.kGray+1} }
+            self.infos['multijet_'+mode]        = {'objName':'Resp_multijet_'+mode,        'legName': 'Multijet (p_{T}^{'+ScaleLeg('leading')+'})',  'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.9, 'marker': ROOT.kFullTriangleUp if mode!='db' else ROOT.kOpenTriangleUp,     'mcolor':ROOT.kBlack} }
+            self.infos['multijet_recoil_'+mode] = {'objName':'Resp_multijet_recoil_'+mode, 'legName': 'Multijet (p_{T}^{'+ScaleLeg('recoil')+'})',   'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.9, 'marker': ROOT.kFullTriangleDown if mode!='db' else ROOT.kOpenTriangleDown, 'mcolor':ROOT.kGray+1} }
             self.infos['incljet_'+mode]         = {'objName':'Resp_incljet_'+mode,         'legName': 'Incl. jet',                                   'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.8, 'marker': ROOT.kFullDiamond if mode!='db' else ROOT.kOpenDiamond,           'mcolor':ROOT.kOrange+2} }
 
-        pf_colors = OrderedDict([('Resp',ROOT.kBlack), ('chf',ROOT.kRed+1), ('nhf',ROOT.kGreen+2), ('nef',ROOT.kAzure+2)])
+        self.pf_colors = OrderedDict([('chf',ROOT.kRed+1), ('nhf',ROOT.kGreen+2), ('nef',ROOT.kAzure+2)])
+        sample_markers = OrderedDict([('zjet',ROOT.kFullStar), ('gamjet',ROOT.kFullSquare), ('hadw',ROOT.kFullTriangleUp)])
+        sample_markers2 = OrderedDict([('zjet',ROOT.kOpenStar), ('gamjet',ROOT.kOpenSquare), ('hadw',ROOT.kOpenTriangleUp)])
         self.infos_PF = OrderedDict()
-        for mode, color in pf_colors.items():
-            self.infos_PF[mode+'_prefit'] = {'objName':mode+'_zjet_mpf_prefit', 'legName': mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'mcolor':color, 'marker':ROOT.kFullCircle} }
-            self.infos_PF[mode+'_postfit'] = {'objName':mode+'_zjet_mpf_postfit', 'legName': mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'mcolor':color, 'marker':ROOT.kOpenCircle} }
-            # self.infos_PF[mode+'_variation'] = {'objName':mode+'_zjet_mpf_variation', 'legName': mode, 'legStyle': 'lep', 'plotinfo': {'opt':'e3', 'fcolor':color, 'lcolor':color} }
+        for mode, color in self.pf_colors.items():
+            for sample,marker in sample_markers.items():
+                self.infos_PF[mode+sample+'variation_input'] = {'objName':mode+'_'+sample+'_mpf_variation_input', 'legName': mode, 'legStyle': 'lep', 'plotinfo': {'opt':'le3', 'fcolor':ROOT.kGray, 'lcolor':ROOT.kGray, 'alpha':0.8} }
+                self.infos_PF[mode+sample+'variation_output'] = {'objName':mode+'_'+sample+'_mpf_variation_output', 'legName': mode, 'legStyle': 'lep', 'plotinfo': {'opt':'le3', 'fcolor':color, 'lcolor':color, 'alpha':0.3} }
+                self.infos_PF[mode+sample+'prefit'] = {'objName':mode+'_'+sample+'_mpf_prefit', 'legName': mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'mcolor':color, 'marker':marker} }
+                self.infos_PF[mode+sample+'postfit'] = {'objName':mode+'_'+sample+'_mpf_postfit', 'legName': mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'mcolor':color, 'marker':sample_markers2[sample]} }
 
         # Load objects
         for name, info in self.infos.items():
@@ -76,11 +97,19 @@ class PlotGlobalFit():
             info['obj'] = self.inputfile.Get(info['objName'])
 
         # Remove null objects
+        for name in list(self.shapes.keys()):
+            if not self.shapes[name]:
+                del self.shapes[name]
+
         for name, info in self.infos.copy().items():
             if ('obj_raw' in info and not info['obj_raw']):
                 del self.infos[name]
             if ('recoil' in name and not name.replace('_recoil','') in self.infos.keys()):
                 del self.infos[name]
+
+        for name, info in self.infos_PF.copy().items():
+            if not info['obj']:
+                del self.infos_PF[name]
 
 
     def FixXAsisPartition(self, shift=None):
@@ -116,9 +145,9 @@ class PlotGlobalFit():
         xpos = 1-r-0.04*(1-l-r)-0.07
         ypos = 1-t-0.04*(1-t-b)
         self.legs['mpf'] = tdrLeg(xpos-0.2,ypos-0.04*(nSamples_mpf+1),xpos,ypos, textSize=0.04)
-        self.legs['db'] = tdrLeg(xpos-0.22,ypos-0.04*(nSamples_db+1),xpos-0.2,ypos, textSize=0.04)
-        tdrHeader(self.legs['mpf'], 'MPF', textAlign=23)
-        tdrHeader(self.legs['db'], 'DB', textAlign=33)
+        self.legs['db'] = tdrLeg(xpos-0.24,ypos-0.04*(nSamples_db+1),xpos-0.2,ypos, textSize=0.04)
+        tdrHeader(self.legs['mpf'], 'MPF', textAlign=13)
+        tdrHeader(self.legs['db'], 'DB ', textAlign=33)
         self.line = ROOT.TLine(XMin, 1, XMax, 1)
         tdrDrawLine(self.line, lcolor=ROOT.kBlack, lstyle=ROOT.kDashed, lwidth=1)
 
@@ -141,8 +170,7 @@ class PlotGlobalFit():
 
         self.line.Draw('same')
         fixOverlay()
-        self.canv.SaveAs(os.path.join(self.outputPath, self.filename.replace('.root', '_'+canvName+'.pdf')))
-        self.canv.SaveAs(os.path.join(self.outputPath, canvName+'_zghm_new.pdf'))
+        self.canv.SaveAs(os.path.join(self.outputPath, self.filename.replace('.root', '_'+canvName+extraname+'.pdf')))
         self.canv.Close()
 
 
@@ -155,15 +183,28 @@ class PlotGlobalFit():
         self.FixXAsisPartition()
         line = ROOT.TLine(XMin,0, XMax, 0)
         tdrDrawLine(line, lcolor=ROOT.kBlack, lstyle=ROOT.kDashed, lwidth=1)
-
-        for info in self.infos_PF.values():
+        for name, info in self.infos_PF.items():
             obj = info['obj']
             tdrDraw(obj, **info['plotinfo'])
-            if info['legName']:
-                self.leg.AddEntry(obj, info['legName'], info['legStyle'])
+            # if info['legName']:
+            #     self.leg.AddEntry(obj, info['legName'], info['legStyle'])
+        for pf in ['_chf','_nhf','_nef']:
+            prefit, postfit = ('0','0')
+            for name, shape in self.shapes.items():
+                if 'input' in name or not pf in name: continue
+                par_ = self.shapes[name.replace(pf,'')].GetParameter(0)
+                par_ = str(par_) if par_<0 else '+'+str(par_)
+                func_ = shape.GetTitle().replace('[0]',par_)
+                if 'postfit' in name: postfit += func_
+                elif 'prefit' in name: prefit += func_
+                else: raise RuntimeError('Unexpected function')
+            self.shapes['prefit'+pf] = rt.TF1('prefit'+pf, prefit,15,4500)
+            self.shapes['postfit'+pf] = rt.TF1('postfit'+pf, postfit,15,4500)
+            tdrDrawLine(self.shapes['prefit'+pf], lcolor=self.pf_colors[pf.replace('_','')], lstyle=rt.kSolid, lwidth=2)
+            tdrDrawLine(self.shapes['postfit'+pf], lcolor=self.pf_colors[pf.replace('_','')], lstyle=rt.kDashed, lwidth=2)
 
         fixOverlay()
-        self.canv.SaveAs(os.path.join(self.outputPath,canvName+'.pdf'))
+        self.canv.SaveAs(os.path.join(self.outputPath, canvName+extraname+'.pdf'))
         self.canv.Close()
 
     def PlotShapes(self, mode):
@@ -175,17 +216,16 @@ class PlotGlobalFit():
         self.FixXAsisPartition()
         leg = tdrLeg(0.4, 0.9- 0.035*(len(self.functionforms)+(3 if mode=='postfit' else 1))/2, 0.92, 0.9, 0.035)
         leg.SetNColumns(2)
-        self.shapes = OrderedDict()
         sum='0'
         for shape, info in self.functionforms.items():
-            self.shapes[shape] = self.inputfile.Get('shape_'+mode+'_'+info['func'])
-            sum += '+('+self.shapes[shape].GetTitle()+')'
+            func = self.shapes[shape+mode]
+            sum += '+('+func.GetTitle()+')'
             if mode !='input':
-                for par in range(self.shapes[shape].GetNpar()):
-                    sum = sum.replace('['+str(par)+']',str(self.shapes[shape].GetParameter(par)))
-                    # print(self.shapes[shape].GetNpar(), par, self.shapes[shape].GetParameter(par))
-            tdrDrawLine(self.shapes[shape], lcolor=info['color'], lstyle=rt.kSolid, lwidth=2)
-            leg.AddEntry(self.shapes[shape], info['leg'], 'l')
+                for par in range(func.GetNpar()):
+                    par_ = func.GetParameter(par)
+                    sum = sum.replace('['+str(par)+']',str(par_) if par_<0 else '+'+str(par_))
+            tdrDrawLine(func, lcolor=info['color'], lstyle=rt.kSolid, lwidth=2)
+            leg.AddEntry(func, info['leg'], 'l')
         if mode=='prefit': self.sum = sum
         self.shapes['sum'] = rt.TF1('sum', sum,15,4500)
         tdrDrawLine(self.shapes['sum'], lcolor=rt.kBlack, lstyle=rt.kSolid, lwidth=2)
@@ -196,7 +236,7 @@ class PlotGlobalFit():
             tdrDrawLine(self.shapes['var_sum'], lcolor=rt.kBlack, lstyle=rt.kDashed, lwidth=2)
             leg.AddEntry(self.shapes['var_sum'], 'post-pre', 'l')
         fixOverlay()
-        self.canv.SaveAs(os.path.join(self.outputPath, canvName+'.pdf'))
+        self.canv.SaveAs(os.path.join(self.outputPath, canvName+extraname+'.pdf'))
         self.canv.Close()
 
     def PlotAll(self):
@@ -204,10 +244,10 @@ class PlotGlobalFit():
         self.PlotResponse('raw')
         self.PlotResponse('prefit')
         self.PlotResponse('postfit')
-        # self.PlotPFVariations()
         self.PlotShapes('input')
         self.PlotShapes('prefit')
         self.PlotShapes('postfit')
+        self.PlotPFVariations()
         self.inputfile.Close()
 
 def main():

@@ -94,3 +94,11 @@ void FuncToHist(TF1* func, TMatrixD err_matrix, TH1D* hist, double k=1);
 void multiplyGraph(TGraphErrors *graph, double scale);
 void multiplyGraph(TGraphErrors *graph, TF1 *func);
 void PropagateErrorToGraph(TGraphErrors *graph, std::vector<TF1*> funcs, TMatrixD err_matrix);
+TGraphErrors* MergeGraphs(TGraphErrors *graph1, TGraphErrors *graph2);
+
+template <typename T>
+int closest(std::vector<T> const& vec, T value) {
+    auto const it = std::lower_bound(vec.begin(), vec.end(), value);
+    T val = (it == vec.end())? -1 : *it;
+    return find(vec.begin(), vec.end(),val) - vec.begin();
+}
