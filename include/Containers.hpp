@@ -68,12 +68,14 @@ private:
 class ShapeContainer {
 
 public:
-  ShapeContainer(TString name_, TString form_, TString appliesTo_, int index_, bool ispositive_);
+  ShapeContainer(TString name_, TString form_, TString appliesTo_, int index_, bool ispositive_, bool freeze_, double initial_);
   void set_name(TString x) {name_ = x;}
   void set_form(TString x) {form_ = x;}
   void set_appliesTo(TString x) {appliesTo_ = x;}
   void set_index(int x) {index_ = x;}
   void set_ispositive(bool x) {ispositive_ = x;}
+  void set_initial(double x) {initial_ = x;}
+  void set_freeze(bool x) {freeze_ = x;}
   void set_func(TF1* x) {func_.reset(x);}
   std::string color() const {return color_;}
   TString name() const {return name_;}
@@ -81,6 +83,8 @@ public:
   TString appliesTo() const {return appliesTo_;}
   int index() const {return index_;}
   bool ispositive() const {return ispositive_;}
+  double initial() const {return initial_;}
+  bool freeze() const {return freeze_;}
   TF1* func() const {return func_.get();}
 
   friend std::ostream& operator<<(std::ostream& os, const ShapeContainer&);
@@ -89,7 +93,8 @@ private:
   std::string color_=magenta;
   TString name_, form_, appliesTo_;
   int index_;
-  bool ispositive_;
+  bool ispositive_, freeze_;
+  double initial_;
   std::unique_ptr<TF1> func_;
 };
 

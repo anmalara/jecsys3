@@ -5,6 +5,8 @@
     "hdm_methods_" : ["db"],
     "types" : ["Resp","chf","nef","nhf"],
     "types_" : ["Resp"],
+    "shapes" : ["ftd", "fp", "fhx", "fhh", "feh", "fhw", "fl1", "ftd-ftm", "f1q3-1"],
+    "shapes_" : ["const"],
     "output_fname_" : "rootfiles/test.root",
     "run"     : "Run2",
     "mode"    : "ratio",

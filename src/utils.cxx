@@ -133,3 +133,10 @@ TGraphErrors* MergeGraphs(TGraphErrors *graph1, TGraphErrors *graph2){
   return out;
 
 }
+
+
+bool IsParameterFixed (TF1* f1, int ipar) {
+  double pmin,pmax;
+  f1->GetParLimits(ipar,pmin,pmax);
+  return (pmin*pmax !=0 && pmin >= pmax);
+}

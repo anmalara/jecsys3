@@ -62,12 +62,13 @@ ostream& operator<<(ostream& os, const PFCompositionContainer& pf) {
   return os;
 }
 
-ShapeContainer::ShapeContainer(TString name_, TString form_, TString appliesTo_, int index_, bool ispositive_){
+ShapeContainer::ShapeContainer(TString name_, TString form_, TString appliesTo_, int index_, bool ispositive_, bool freeze_, double initial_){
   set_name(name_);
   set_form(form_);
   set_appliesTo(appliesTo_);
   set_index(index_);
-  set_ispositive(ispositive_);
+  set_freeze(freeze_);
+  set_initial(initial_);
   set_func(new TF1("f1_"+name_+"_"+appliesTo_, form_, func_range_min,func_range_max));
 }
 

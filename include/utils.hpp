@@ -102,3 +102,6 @@ int closest(std::vector<T> const& vec, T value) {
     T val = (it == vec.end())? -1 : *it;
     return find(vec.begin(), vec.end(),val) - vec.begin();
 }
+
+
+bool IsParameterFixed (TF1* f1, int ipar);

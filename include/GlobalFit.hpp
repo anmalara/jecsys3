@@ -61,7 +61,7 @@ public:
   static constexpr double ScaleFullSimShape = 0.01;
 
   std::string runName, mode, eta_min, eta_max, output_fname = "rootfiles/outputRUN.root";
-  std::vector<TString> samples, hdm_methods, types;
+  std::vector<TString> samples, hdm_methods, types, shapes_allowed;
 
 
   std::map<TString, TFile*> input_files;

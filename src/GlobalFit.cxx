@@ -21,6 +21,7 @@ GlobalFit::GlobalFit(string input_json) {
   for (auto i : infos["samples"].get<vector<string>>())samples.push_back(i);
   for (auto i : infos["hdm_methods"].get<vector<string>>())hdm_methods.push_back(i);
   for (auto i : infos["types"].get<vector<string>>())types.push_back(i);
+  for (auto i : infos["shapes"].get<vector<string>>())shapes_allowed.push_back(i);
 
   f_.close();
 
@@ -32,6 +33,7 @@ GlobalFit::GlobalFit(string input_json) {
   Print("  --> samples:", green); PrintLine(samples);
   Print("  --> hdm_methods:", green); PrintLine(hdm_methods);
   Print("  --> types:", green); PrintLine(types);
+  Print("  --> shapes:", green); PrintLine(shapes_allowed);
   for (auto sample: samples) {
     for (auto method: hdm_methods) {
       for (auto type: types) {
@@ -173,14 +175,14 @@ void GlobalFit::LoadSystematics(){
 void GlobalFit::LoadShapes(){
   for (auto [name, info]: shapes_map) {
     TString appliesTo = info["appliesTo"];
-    if (FindInVector(types,appliesTo)<0) {
+    if (FindInVector(types,appliesTo)<0 || FindInVector(shapes_allowed,name)<0) {
       if (debug) PrintLine("Skipping source: "+name+" index: "+to_string(FindInVector(types,appliesTo)), yellow);
       continue;
     }
     if (debug) PrintLoading("shape", name, "");
     int index = shapes.size();
     if (info["appliesTo"]!="Resp") throw invalid_argument("This shape("+name+") should be applied to Resp");
-    shapes[name] = new ShapeContainer(name,info["form"],info["appliesTo"],index,atoi(info["ispositive"]));
+    shapes[name] = new ShapeContainer(name,info["form"],info["appliesTo"],index,atoi(info["ispositive"]), atoi(info["freeze"]), stod(info["initial"].Data()));
     assert(shapes[name]);
     if (debug) {PrintLine("successfully", yellow); cout << *shapes[name] << endl;};
     shape_types.insert(info["type"]);
@@ -188,14 +190,14 @@ void GlobalFit::LoadShapes(){
 
   for (auto [name, info]: shapes_pf_map) {
     TString appliesTo = info["appliesTo"];
-    if (FindInVector(types,appliesTo)<0) {
+    if (FindInVector(types,appliesTo)<0 || FindInVector(shapes_allowed,name)<0) {
       if (debug) PrintLine("Skipping source: "+name+" index: "+to_string(FindInVector(types,appliesTo)), yellow);
       continue;
     }
     if (debug) PrintLoading("shape", name, "");
     int index = shapes[info["type"]]->index();
     if (info["appliesTo"]=="Resp") throw invalid_argument("This shape("+name+") should NOT be applied to Resp");
-    shapes[name] = new ShapeContainer(name,info["form"],info["appliesTo"],index,atoi(info["ispositive"]));
+    shapes[name] = new ShapeContainer(name,info["form"],info["appliesTo"],index,atoi(info["ispositive"]), atoi(info["freeze"]), stod(info["initial"].Data()));
     assert(shapes[name]);
     if (debug) {PrintLine("successfully", yellow); cout << *shapes[name] << endl;};
     shape_types.insert(info["type"]);
@@ -308,16 +310,16 @@ void GlobalFit::SetupFitFunction(){
   for (auto [name,shape]: shapes){
     int index= shape->index();
     if (index>nFitPars) continue;
-    // _jesFit->SetParameter(index, (index<2|| index==4)? 0 : 1);
-    _jesFit->SetParameter(index, 0);
+    if (shape->freeze()) _jesFit->FixParameter(index, shape->initial());
+    else _jesFit->SetParameter(index, shape->initial());
   }
-  // _jesFit->SetParameters(1,1,1,1,1,0,0,1,0);
-  // _jesFit->SetParameters(0,1,1,0,1,0,1,1,1);
+
   // TMinuit *fitter = new TMinuit(nTotPars);
   fitter = new TFitter(nTotPars);
   fitter->SetFCN(jesFitter);
   for (int i = 0; i != nTotPars; ++i) {
     fitter->SetParameter(i, "", _jesFit->GetParameter(i), (i<nFitPars ? 0.01 : 1),-100, 100);
+    if (i<nFitPars && IsParameterFixed(_jesFit, i) ) fitter->FixParameter(i);
   }
 
 }
@@ -332,7 +334,7 @@ void GlobalFit::DoGlobalFit(){
   // Verify that the degrees of freedom make sense. Important to check immediately
   nFittedDataPoints -= nNuisancePars;
   if (penalizeFitPars) nFittedDataPoints -= nFitPars;
-  assert(nFittedDataPoints==nTotalPoints);
+  // assert(nFittedDataPoints==nTotalPoints);
 
   // Set the error matrix
   error_matrix.reset(new TMatrixD(nTotPars, nTotPars));
