@@ -1,19 +1,34 @@
 #include "GlobalFit.hpp"
 #include "Containers.hpp"
 #include "utils.hpp"
-#include "config.hpp"
 
 using namespace std;
 
 // Set to a dummy value
 TString GlobalFit::current_obs = "";
 
-GlobalFit::GlobalFit(std::string runName_, std::string mode_, double eta_min_,double eta_max_) {
-  // Constructor set the run, mode, eta range and open files
-  runName = runName_; mode = mode_;
-  eta_min = Form("%02.0f",10*eta_min_);
-  eta_max = Form("%02.0f",10*eta_max_);
-  PrintLine("Running on: run="+runName+", mode="+mode+", eta_min="+eta_min+", eta_max="+eta_max, green);
+GlobalFit::GlobalFit(string input_json) {
+  // Constructor read info from json
+
+  ifstream f_(input_json);
+  nlohmann::json infos = nlohmann::json::parse(f_);
+  runName = infos["run"];
+  mode = infos["mode"];
+  eta_min = infos["eta_min"];
+  eta_max = infos["eta_max"];
+  if (infos.contains("output_fname")) output_fname = infos["output_fname"];
+
+  for (auto i : infos["samples"].get<vector<string>>())samples.push_back(i);
+  for (auto i : infos["hdm_methods"].get<vector<string>>())hdm_methods.push_back(i);
+  for (auto i : infos["types"].get<vector<string>>())types.push_back(i);
+
+  f_.close();
+
+  PrintLine("Running on:", green);
+  PrintLine("  --> run :" +runName, green);
+  PrintLine("  --> mode :" +mode, green);
+  PrintLine("  --> eta_min :" +eta_min, green);
+  PrintLine("  --> eta_max :" +eta_max, green);
   Print("  --> samples:", green); PrintLine(samples);
   Print("  --> hdm_methods:", green); PrintLine(hdm_methods);
   Print("  --> types:", green); PrintLine(types);
@@ -88,6 +103,20 @@ void GlobalFit::LoadInputs(){
 
 
 void GlobalFit::LoadPFContainers(){
+
+  for (auto [name, info]: input_hnames_map) {
+    if (FindInVector(input_hnames,name)<0) {
+      if (debug) PrintLine("Skipping hist: "+name, yellow);
+      continue;
+    }
+    TString hname = ReplaceDefault(info["hname"]);
+    if (debug) PrintLoading("hist", name, hname);
+    unique_ptr<TGraphErrors> g; g.reset((TGraphErrors*)input_files[info["fname"].Data()]->Get(hname));
+    my_data[name] = new DataContainer(name, info["type"], hname, g.get());
+    nTotalPoints += my_data[name]->GetN();
+    if (debug) {PrintLine("successfully", yellow); cout << *my_data[name] << endl;}
+  }
+
   for (auto type: types) {
     if (type=="Resp") continue;
     if (debug) {PrintLoading("PF", type, "");cout<<reset << endl;}
@@ -102,7 +131,7 @@ void GlobalFit::LoadPFContainers(){
       if (debug) PrintLoading("hist", name, hname);
       unique_ptr<TGraphErrors> g; g.reset((TGraphErrors*)input_files[info["fname"].Data()]->Get(hname));
       pf_variations[type]->add_raw(g.get(), name);
-      TruncateGraph(g.get(),std::stod(info["min"].Data()), std::stod(info["max"].Data()));
+      TruncateGraph(g.get(),stod(info["min"].Data()), stod(info["max"].Data()));
       pf_variations[type]->add_graph(g.get(), name);
       if (debug) PrintLine("successfully", yellow);
     }
@@ -150,7 +179,7 @@ void GlobalFit::LoadShapes(){
     }
     if (debug) PrintLoading("shape", name, "");
     int index = shapes.size();
-    if (info["appliesTo"]!="Resp") throw std::invalid_argument("This shape("+name+") should be applied to Resp");
+    if (info["appliesTo"]!="Resp") throw invalid_argument("This shape("+name+") should be applied to Resp");
     shapes[name] = new ShapeContainer(name,info["form"],info["appliesTo"],index,atoi(info["ispositive"]));
     assert(shapes[name]);
     if (debug) {PrintLine("successfully", yellow); cout << *shapes[name] << endl;};
@@ -165,7 +194,7 @@ void GlobalFit::LoadShapes(){
     }
     if (debug) PrintLoading("shape", name, "");
     int index = shapes[info["type"]]->index();
-    if (info["appliesTo"]=="Resp") throw std::invalid_argument("This shape("+name+") should NOT be applied to Resp");
+    if (info["appliesTo"]=="Resp") throw invalid_argument("This shape("+name+") should NOT be applied to Resp");
     shapes[name] = new ShapeContainer(name,info["form"],info["appliesTo"],index,atoi(info["ispositive"]));
     assert(shapes[name]);
     if (debug) {PrintLine("successfully", yellow); cout << *shapes[name] << endl;};
@@ -279,7 +308,8 @@ void GlobalFit::SetupFitFunction(){
   for (auto [name,shape]: shapes){
     int index= shape->index();
     if (index>nFitPars) continue;
-    _jesFit->SetParameter(index, (index<2|| index==4)? 0 : 1);
+    // _jesFit->SetParameter(index, (index<2|| index==4)? 0 : 1);
+    _jesFit->SetParameter(index, 0);
   }
   // _jesFit->SetParameters(1,1,1,1,1,0,0,1,0);
   // _jesFit->SetParameters(0,1,1,0,1,0,1,1,1);
@@ -357,8 +387,8 @@ void GlobalFit::DoGlobalFit(){
   PrintLine(Form("  --> fitting range [%1.0f,%1.0f]", _jesFit->GetXmin(),_jesFit->GetXmax()), blue);
   PrintLine(Form("  --> Total     chi2/NDF  = %1.1f / %d",chi2_gbl, nFittedDataPoints), blue);
   PrintLine(Form("  --> Data      chi2/NDF  = %1.1f / %d",chi2_data, nTotalPoints), blue);
-  PrintLine(Form("  --> Nuisance  chi2/Nsrc = %1.1f / %d",chi2_src, nFitPars), blue);
-  PrintLine(Form("  --> Parameter chi2/Npar = %1.1f / %d",chi2_par, nNuisancePars), blue);
+  PrintLine(Form("  --> Nuisance  chi2/Nsrc = %1.1f / %d",chi2_src, nNuisancePars), blue);
+  PrintLine(Form("  --> Parameter chi2/Npar = %1.1f / %d",chi2_par, nFitPars), blue);
 
   PrintLine("Fitted parameters (for Resp):", blue);
   for (auto [name,shape]: shapes){
@@ -433,7 +463,7 @@ void GlobalFit::StoreFitOutput(){
     multiplyGraph(input,scale);
     multiplyGraph(output,scale);
     multiplyGraph(variation,scale);
-    std::vector<TF1*> funcs;
+    vector<TF1*> funcs;
     for (auto [name_,shape]: shapes){
       if (shape->appliesTo()==dt->type()) {
         funcs.push_back(shape->func());
@@ -456,7 +486,7 @@ void GlobalFit::StoreFitOutput(){
     multiplyGraph(input,scale);
     multiplyGraph(output,scale);
     multiplyGraph(variation,scale);
-    std::vector<TF1*> funcs;
+    vector<TF1*> funcs;
     for (auto [name_,shape]: shapes){
       if (shape->appliesTo()==pf->type()) {
         funcs.push_back(shape->func());
@@ -508,7 +538,7 @@ void GlobalFit::StoreFitOutput(){
 
 void GlobalFit::Run(){
   LoadInputs();
-  LoadPFContainers();
+  // LoadPFContainers();
   LoadSystematics();
   LoadShapes();
   LoadReference();
@@ -536,7 +566,7 @@ function<double(Double_t *, Double_t *)> jesFit_wrapper(TH1D* hjesref, map<TStri
 
     // // Load available shapes for this observable
     for (auto [name,shape]: shapes){
-      if (shape->appliesTo()!="Resp") continue;
+      if (shape->appliesTo()!=GlobalFit::current_obs) continue;
       // Calculate variation and add it to total
       int index = shape->index();   assert(index>=0);
       TF1 *f1 = shape->func();  assert(f1);
@@ -621,17 +651,6 @@ void jesFitter(Int_t& npar, Double_t* grad, Double_t& chi2, Double_t* par, Int_t
           shift += nuisance_pars[source->index()] * hsrc->GetBinContent(hsrc->FindBin(pt));
         }
 
-        for (auto [shape_name,shape]: shapes){
-          if ("Resp"==shape->appliesTo()) continue;
-          if (dt_type!=shape->appliesTo()) continue;
-          // if (pt<40 || pt>600) continue;
-          // if (debug) PrintLine("adding2 "+shape_name+" to shift for "+ dt_type+"("+shape->appliesTo()+") index:"+to_string(shape->index()), yellow);
-
-          TF1* func = shape->func(); assert(func);
-          shift += fit_pars[shape->index()] * func->Eval(pt) * GlobalFit::ScaleFullSimShape;
-          // cout << cyan << "Using func " << shape_name << " " << dt_type << " " << shape->index() << " " << pt << " " << func->Eval(pt) << " " << fit_pars[shape->index()] << " " << fit_pars[shape->index()] * func->Eval(pt) * GlobalFit::ScaleFullSimShape << reset << endl;
-        }
-
         // Add chi2 from residual
         // cout << "data_point: " << data_point << " shift: " << shift << " fit: " << fit << " sigma: " << sigma << " err: " << oplus(sigma,GlobalFit::globalErrMin) << endl;
         // if (debug) PrintLine("chi2 before point: "+to_string_with_precision(chi2),yellow);
@@ -640,7 +659,7 @@ void jesFitter(Int_t& npar, Double_t* grad, Double_t& chi2, Double_t* par, Int_t
         if ("Resp"==dt_type) {
           chi = (data_point + shift - fit) / oplus(sigma,GlobalFit::globalErrMin);
         } else {
-          chi = max(fabs(data_point - shift) - 0.01*fitPFG_delta,0.) / sigma;
+          chi = max(fabs(data_point - fit) - 0.01*fitPFG_delta,0.) / sigma;
           // cout << red << "FIND ME " << dt_type << " " << chi << " " << shift << reset << endl;
         }
 
@@ -651,8 +670,8 @@ void jesFitter(Int_t& npar, Double_t* grad, Double_t& chi2, Double_t* par, Int_t
         //
         // // Store shifted data
         assert(graph_output->GetN()==graph_input->GetN() && graph_output->GetX()[bin]==pt);
-        graph_output->SetPoint(bin, pt, data_point + shift);
-        graph_variation->SetPoint(bin, pt, shift);
+        graph_output->SetPoint(bin, pt, ("Resp"==dt_type)? data_point + shift: fit);
+        graph_variation->SetPoint(bin, pt, ("Resp"==dt_type)? shift: fit);
 
         // For multijets, store also downward extrapolation
         if (is_multijet_resp) {

@@ -60,7 +60,7 @@ void FuncToGraph(TF1* func, TMatrixD err_matrix, TGraphErrors *graph, double k){
   std::unique_ptr<TGraph>gr; gr.reset(new TGraph(func));
   for (int i = 0; i < gr->GetN(); ++i) {
     double x = gr->GetX()[i];
-    graph->AddPoint(x, gr->GetY()[i]);
+    graph->SetPoint(i, x, gr->GetY()[i]);
     double err = fitError_wrapper(func, err_matrix)(&x,&k);
     graph->SetPointError(i, 0., err - gr->GetY()[i]);
   }

@@ -1,7 +1,7 @@
 CC = g++
 
 CFLAGS = -std=c++17 -Wall
-LFLAGS = -I. -I./include -lASImage -lMinuit
+LFLAGS = -I. -I./include -lMinuit
 ROOTLIBS = `root-config --cflags --ldflags --glibs`
 LIBSMAIN = $(CFLAGS) $(LFLAGS) $(ROOTLIBS)
 

@@ -17,7 +17,6 @@
 // Notes: enable systematic source offsetting?
 
 #include "constants.hpp"
-#include "config.hpp"
 #include "Containers.hpp"
 
 #include "TFile.h"
@@ -28,16 +27,13 @@
 #include "TFitter.h"
 #include "TLine.h"
 
-// #include "tools.C"
-// #include "tdrstyle_mod22.C"
-// #include "globalFitSettings.h"
-
-
+#include <fstream>
+#include <include/json.hpp>
 
 class GlobalFit {
 
 public:
-  GlobalFit(std::string runName_, std::string mode_, double eta_min_,double eta_max_);
+  GlobalFit(std::string input_json);
   ~GlobalFit();
   void OpenFiles();
   void Run();
@@ -64,7 +60,9 @@ public:
   static TString current_obs;
   static constexpr double ScaleFullSimShape = 0.01;
 
-  std::string runName, mode, eta_min, eta_max;
+  std::string runName, mode, eta_min, eta_max, output_fname = "rootfiles/outputRUN.root";
+  std::vector<TString> samples, hdm_methods, types;
+
 
   std::map<TString, TFile*> input_files;
   std::map<TString, TFile*> output_files;

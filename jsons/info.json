@@ -1,0 +1,13 @@
+{
+    "samples": ["zjet", "gamjet", "hadw", "multijet"],
+    "hdm_methods" : ["mpf", "db"],
+    "hdm_methods_" : ["mpf"],
+    "hdm_methods_" : ["db"],
+    "types" : ["Resp","chf","nef","nhf"],
+    "types_" : ["Resp"],
+    "output_fname_" : "rootfiles/test.root",
+    "run"     : "Run2",
+    "mode"    : "ratio",
+    "eta_min" : "00",
+    "eta_max" : "13"
+}
