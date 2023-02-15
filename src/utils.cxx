@@ -93,16 +93,15 @@ void multiplyGraph(TGraphErrors *graph, TF1 *func) {
   }
 }
 
-void PropagateErrorToGraph(TGraphErrors *graph, std::vector<TF1*> funcs, TMatrixD err_matrix) {
-  int nfuncs = funcs.size();
+void PropagateErrorToGraph(TGraphErrors *graph, std::map<int, TF1*> funcs, TMatrixD err_matrix) {
   for (int i = 0; i != graph->GetN(); ++i) {
     double x = graph->GetX()[i];
     double xerr = graph->GetEX()[i];
 
     double sumerr2(0);
-    for (int ipar = 0; ipar != nfuncs; ++ipar) {
-      for (int jpar = 0; jpar != nfuncs; ++jpar) {
-        sumerr2 += funcs[ipar]->Eval(x)*funcs[jpar]->Eval(x)*err_matrix[ipar][jpar];
+    for (auto [i,func1]: funcs){
+      for (auto [j,func2]: funcs){
+        sumerr2 += func1->Eval(x)*func2->Eval(x)*err_matrix[i][j];
       }
     }
     graph->SetPointError(i, xerr, sqrt(sumerr2));

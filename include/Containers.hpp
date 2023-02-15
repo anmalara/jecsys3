@@ -35,36 +35,6 @@ private:
 };
 
 
-class PFCompositionContainer {
-public:
-  PFCompositionContainer(TString name_, TString type_);
-  void set_name(TString x) {name_ = x;}
-  void set_type(TString x) {type_ = x;}
-  std::string color() const {return color_;}
-  TString name() const {return name_;}
-  TString type() const {return type_;}
-  TGraphErrors* raw() const {return raw_.get();}
-  TGraphErrors* input() const {return input_.get();}
-  TGraphErrors* output() const {return output_.get();}
-  TGraphErrors* variation() const {return variation_.get();}
-  std::vector<TGraphErrors*> raws() const {std::vector<TGraphErrors*> out; for(auto & x : raws_) {out.push_back(x.get());} return out; }
-  std::vector<TGraphErrors*> inputs() const {std::vector<TGraphErrors*> out; for(auto & x : inputs_) {out.push_back(x.get());} return out; }
-  std::vector<TGraphErrors*> outputs() const {std::vector<TGraphErrors*> out; for(auto & x : outputs_) {out.push_back(x.get());} return out; }
-  std::vector<TGraphErrors*> variations() const {std::vector<TGraphErrors*> out; for(auto & x : variations_) {out.push_back(x.get());} return out; }
-  friend std::ostream& operator<<(std::ostream& os, const PFCompositionContainer&);
-
-  void add_raw(TGraphErrors* x, TString name_);
-  void add_graph(TGraphErrors* x, TString name_);
-  void set_combination();
-
-private:
-  std::string color_=blue;
-  TString name_, type_;
-  std::vector<std::unique_ptr<TGraphErrors>> raws_, inputs_, outputs_, variations_;
-  std::unique_ptr<TGraphErrors> raw_, input_, output_, variation_;
-};
-
-
 class ShapeContainer {
 
 public:
@@ -99,10 +69,10 @@ private:
 };
 
 
-class SystematicContainer {
+class NuisanceContainer {
 
 public:
-  SystematicContainer(TString name_, TString appliesTo_, int index_, TString hname_, TH1D* hist_);
+  NuisanceContainer(TString name_, TString appliesTo_, int index_, TString hname_, TH1D* hist_);
   void set_name(TString x) {name_ = x;}
   void set_appliesTo(TString x) {appliesTo_ = x;}
   void set_hname(TString x) {hname_ = x;}
@@ -115,7 +85,7 @@ public:
   int index() const {return index_;}
   TH1D* hist() const {return hist_.get();}
 
-  friend std::ostream& operator<<(std::ostream& os, const SystematicContainer&);
+  friend std::ostream& operator<<(std::ostream& os, const NuisanceContainer&);
 
   int GetN() { return hist()->GetNbinsX();}
 

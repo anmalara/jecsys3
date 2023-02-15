@@ -88,12 +88,12 @@ double oplus(double a, double b);
 double fitError(Double_t *x, Double_t *p);
 std::function<double(Double_t *, Double_t *)> fitError_wrapper(TF1* func, TMatrixD err_matrix);
 
-void FuncToGraph(TF1* func, TMatrixD err_matrix, TGraphErrors* graph, double k=1);
-void FuncToHist(TF1* func, TMatrixD err_matrix, TH1D* hist, double k=1);
+void FuncToGraph(TF1* func, TMatrixD err_matrix, TGraphErrors* graph, double k_err=1);
+void FuncToHist(TF1* func, TMatrixD err_matrix, TH1D* hist, double k_err=1);
 
 void multiplyGraph(TGraphErrors *graph, double scale);
 void multiplyGraph(TGraphErrors *graph, TF1 *func);
-void PropagateErrorToGraph(TGraphErrors *graph, std::vector<TF1*> funcs, TMatrixD err_matrix);
+void PropagateErrorToGraph(TGraphErrors *graph, std::map<int, TF1*> funcs, TMatrixD err_matrix);
 TGraphErrors* MergeGraphs(TGraphErrors *graph1, TGraphErrors *graph2);
 
 template <typename T>

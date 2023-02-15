@@ -5,7 +5,11 @@
 static const bool debug=true;
 static constexpr double func_range_min = 10.;  // Define fitting range
 static constexpr double func_range_max = 6500.; // Define fitting range
+static constexpr double ptmin_multijet = -1; // Min pt considered for multijet recoil
 static constexpr double ptmax_multijet = 1300; // Max pt considered for multijet recoil
+
+static constexpr double ptmin_pf = 40; // Min pt considered for pf composition
+static constexpr double ptmax_pf = 1000; // Max pt considered for pf composition
 
 static const std::map<TString, TString> input_fnames = {
   {"jes", "rootfiles/jecdataRUN.root"},
@@ -42,15 +46,12 @@ static const std::map<TString, std::map<TString,TString>> input_hnames_map = {
   {"Resp_incljet_mpf",  { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/mpfchs1_incjet_a100"},}},
   {"Resp_incljet_db",   { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/ptchs_incjet_a100"},}},
 
-};
-
-static const std::map<TString, std::map<TString,TString>> pf_composition_map = {
-
-  {"chf", { {"fname", "jes"}, {"type", "chf"},  {"hname","MODE/etaETAMIN-ETAMAX/chf_cmb_ren"},}},
-  {"nhf", { {"fname", "jes"}, {"type", "nhf"},  {"hname","MODE/etaETAMIN-ETAMAX/nhf_cmb_ren"},}},
-  {"nef", { {"fname", "jes"}, {"type", "nef"},  {"hname","MODE/etaETAMIN-ETAMAX/nef_cmb_ren"},}},
+  {"chf",               { {"fname", "jes"}, {"type", "chf"},  {"hname","MODE/etaETAMIN-ETAMAX/chf_cmb_ren"},}},
+  {"nhf",               { {"fname", "jes"}, {"type", "nhf"},  {"hname","MODE/etaETAMIN-ETAMAX/nhf_cmb_ren"},}},
+  {"nef",               { {"fname", "jes"}, {"type", "nef"},  {"hname","MODE/etaETAMIN-ETAMAX/nef_cmb_ren"},}},
 
 };
+
 
 static const std::map<TString, std::map<TString,TString>> recoil_hnames_map = {
   {"Resp_multijet_recoil_mpf", { {"fname", "jes"}, {"type", "Resp"}, {"hname","MODE/etaETAMIN-ETAMAX/crecoil_multijet_a30"},}},
@@ -67,7 +68,7 @@ static const std::map<TString, std::map<TString,TString>> kfsr_hnames_map = {
   {"fsr_multijet_db",  { {"appliesTo", "Resp_multijet_db"},  {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_ptchs_multijet"},}},
 };
 
-static const std::map<TString, std::map<TString,TString>> sources_hnames_map = {
+static const std::map<TString, std::map<TString,TString>> nuisances_map = {
   {"Resp_uncl_zjet_mpf",        { {"appliesTo", "Resp_zjet_mpf"},     {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_zjet_mpfu1"},}},
   {"Resp_add_jet_zjet_mpf",     { {"appliesTo", "Resp_zjet_mpf"},     {"fname", "jes"}, {"hname","MODE/etaETAMIN-ETAMAX/fsr/hkfsr3_mpfchs1_zjet_mpfn1"},}},
   {"Resp_scale_zjet_mpf",       { {"appliesTo", "Resp_zjet_mpf"},     {"fname", "jes"}, {"hname","scale0.2"},}},
@@ -114,9 +115,7 @@ static const std::map<TString, std::map<TString,TString>> shapes_map = {
   {"fl1",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","fl1"},     {"appliesTo","Resp"}, {"form", "100*(1-(0.350077+0.553560*log(x)-0.0527681*pow(log(x),2))/x-1)"},}},
   {"ftd-ftm",  {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ftd-ftm"}, {"appliesTo","Resp"}, {"form", "3*((-0.116-0.6417*pow(x/208.,-0.3051)+23.63/x)-(0.2683-0.6994*pow(x/208.,-0.3051)+18.49/x))"},}},
   {"f1q3-1",   {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","f1q3-1"},  {"appliesTo","Resp"}, {"form", "0.01*(0.7966+0.9311*(pow(0.01*x,-1)-1))"},}},
-};
 
-static const std::map<TString, std::map<TString,TString>> shapes_pf_map = {
   {"ftd_chf",  {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ftd"}, {"appliesTo","chf"}, {"form", "1.982-2.678*(1+(pow(x/47.02,0.262)-1)/(pow(x/47.02,0.262)+1))+0.1494*pow(x,+0.3)-3.097/x"},}},
   {"ftd_nhf",  {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ftd"}, {"appliesTo","nhf"}, {"form", "-0.01022-0.1962*(1+(pow(x/4000,3.071)-1)/(pow(x/4000,3.071)+1))+0.04211*pow(x,+0.3)+0.01005/x"},}},
   {"ftd_nef",  {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ftd"}, {"appliesTo","nef"}, {"form", "0.07453+0.1457*(1+(pow(x/1131,-3.68)-1)/(pow(x/1131,-3.68)+1))-0.4155*pow(x,-0.3)-1.878/x"},}},
