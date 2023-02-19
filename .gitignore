@@ -36,3 +36,4 @@
 
 #MacOS
 *.DS_Store
+.vscode/
