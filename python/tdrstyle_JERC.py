@@ -17,10 +17,12 @@ from array import array
 # ##    ##  ##       ##     ## ##     ## ##     ## ##            ## ##   ##     ## ##    ##  ##    ##
 #  ######   ########  #######  ########  ##     ## ########       ###    ##     ## ##     ##  ######
 
+# Define a dictionary for common color, marker, legend, and luminosity schemes
 commonScheme = {
   'color': {
     'UL16APV':    rt.kOrange+1,
     'UL16nonAPV': rt.kRed+1,
+    'UL16':       rt.kOrange+1,
     'UL17':       rt.kAzure+2,
     'UL18':       rt.kGreen-1,
     'Run2':       rt.kBlack,
@@ -28,6 +30,7 @@ commonScheme = {
   'marker': {
     'UL16APV':    rt.kFullTriangleUp,
     'UL16nonAPV': rt.kFullTriangleDown,
+    'UL16':       rt.kFullTriangleUp,
     'UL17':       rt.kFullStar,
     'UL18':       rt.kFullSquare,
     'Run2':       rt.kFullCircle,
@@ -45,14 +48,16 @@ commonScheme = {
   'lumi': {
     'UL16APV':    '20',
     'UL16nonAPV': '17',
+    'UL16':       '37',
     'UL17':       '41',
     'UL18':       '60',
     'Run2':       '138',
-    'Run3':       '8',
+    'Run3':       '31.5',
     },
   'lumidec': {
     'UL16APV':    19.53,
     'UL16nonAPV': 16.80,
+    'UL16':       36.33,
     'UL17':       41.48,
     'UL18':       59.83,
     'Run2':      137.65,
@@ -60,6 +65,7 @@ commonScheme = {
   'pileup': {
     'UL16APV':    22,
     'UL16nonAPV': 25,
+    'UL16':       22,
     'UL17':       33,
     'UL18':       32,
     'Run2':       37,
@@ -67,6 +73,7 @@ commonScheme = {
   'energy': {
       'UL16APV':    "13",
       'UL16nonAPV': "13",
+      'UL16':       "13",
       'UL17':       "13",
       'UL18':       "13",
       'Run2':       "13",
@@ -107,24 +114,30 @@ drawLogo     = False
 kSquare      = True
 kRectangular = False
 
-#Alternative color pallette
-MyPalette=None
-def CreateAlternativePalette():
-    Red    = [ 0.00, 0.00, 1.00, 0.70]
-    Green  = [ 0.30, 0.50, 0.70, 0.00]
-    Blue   = [ 0.50, 0.40, 0.20, 0.15]
-    Length = [ 0.00, 0.15, 0.70, 1.00]
-    nb = 200
-    FI = rt.TColor.CreateGradientColorTable(len(Length),array('d',Length),array('d',Red),array('d',Green),array('d',Blue),nb)
-    global MyPalette
-    MyPalette = [FI+i for i in range(nb)]
 
-def SetAlternative2DColor(h=None):
+# Define an alternative color palette and a function to set it
+MyPalette = None
+
+def CreateAlternativePalette(alpha=1):
+    red_values    = array('d', [0.00, 0.00, 1.00, 0.70])
+    green_values  = array('d', [0.30, 0.50, 0.70, 0.00])
+    blue_values   = array('d', [0.50, 0.40, 0.20, 0.15])
+    length_values = array('d', [0.00, 0.15, 0.70, 1.00])
+    num_colors = 200
+    color_table = rt.TColor.CreateGradientColorTable(len(length_values), length_values, red_values, green_values, blue_values, num_colors,alpha)
+    global MyPalette
+    MyPalette = [color_table + i for i in range(num_colors)]
+
+def SetAlternative2DColor(hist=None, style=None, alpha=1):
+    global MyPalette
     if MyPalette is None:
-        CreateAlternativePalette()
-    tdrStyle = rt.gROOT.FindObject('tdrStyle')
-    tdrStyle.SetPalette(len(MyPalette), array('i',MyPalette))
-    if h is not None: h.SetContour(len(MyPalette))
+        CreateAlternativePalette(alpha=alpha)
+    if style is None:
+        global tdrStyle
+        style = tdrStyle
+    style.SetPalette(len(MyPalette), array('i', MyPalette))
+    if hist is not None:
+      hist.SetContour(len(MyPalette))
 
 
 # ######## ########  ########        ######  ######## ##    ## ##       ########
@@ -135,9 +148,10 @@ def SetAlternative2DColor(h=None):
 #    ##    ##     ## ##    ##       ##    ##    ##       ##    ##       ##
 #    ##    ########  ##     ##       ######     ##       ##    ######## ########
 
+tdrStyle = None
+
 # Turns the grid lines on (true) or off (false)
 def tdrGrid( gridOn):
-  tdrStyle = rt.gROOT.FindObject('tdrStyle')
   tdrStyle.SetPadGridX(gridOn)
   tdrStyle.SetPadGridY(gridOn)
 
@@ -146,7 +160,12 @@ def fixOverlay():
   rt.gPad.RedrawAxis()
 
 def setTDRStyle():
-  tdrStyle =  rt.TStyle('tdrStyle','Style for P-TDR')
+  global tdrStyle
+  if tdrStyle!=None:
+    del tdrStyle
+  tdrStyle = rt.TStyle('tdrStyle', 'Style for P-TDR')
+  rt.gROOT.SetStyle(tdrStyle.GetName())
+  rt.gROOT.ForceStyle()
   #for the canvas:
   tdrStyle.SetCanvasBorderMode(0)
   tdrStyle.SetCanvasColor(rt.kWhite)
@@ -233,7 +252,6 @@ def setTDRStyle():
   tdrStyle.SetHatchesLineWidth(5)
   tdrStyle.SetHatchesSpacing(0.05)
   tdrStyle.cd()
-  return tdrStyle
 
 
 #  ######  ##     ##  ######       ##       ##     ## ##     ## ####
@@ -348,16 +366,31 @@ def CMS_lumi(pad, iPosX=11):
 
 # Create canvas with predefined axix and CMS logo
 def tdrCanvas(canvName, x_min, x_max, y_min, y_max, nameXaxis, nameYaxis, square=kRectangular, iPos=11, is2D=False, isExtraSpace=False):
-  # iPos parameter defines the position of the CMS logo in the plot
-  # iPos=11 : top-left, left-aligned
-  # iPos=33 : top-right, right-aligned
-  # iPos=22 : center, centered
-  # iPos=0  : out of frame (in exceptional cases)
-  # mode generally : iPos = 10*(alignement 1/2/3) + position (1/2/3 = l/c/r)
+  """
+    Draw a canvas with TDR style.
 
-  # setTDRStyle to get all the settings right
-  tdrStyle = setTDRStyle()
+    canvName: Name of the canvas.
+    x_min: Minimum value of the x-axis.
+    x_max: Maximum value of the x-axis.
+    y_min: Minimum value of the y-axis.
+    y_max: Maximum value of the y-axis.
+    nameXaxis: Label for the x-axis.
+    nameYaxis: Label for the y-axis.
+    square: If True, canvas is square.
+    iPos: Position of the CMS logo in the plot.
+        iPos=11 : top-left, left-aligned
+        iPos=33 : top-right, right-aligned
+        iPos=22 : center, centered
+        iPos=0  : out of frame (in exceptional cases)
+        mode generally : iPos = 10*(alignement 1/2/3) + position (1/2/3 = l/c/r)
+    is2D: If True, canvas is 2D.
+    isExtraSpace: If True, add extra space to the margins.
+    """
 
+  # Set TDR style
+  setTDRStyle()
+
+  # Set canvas dimensions and margins
   W_ref = 600 if square else 800
   H_ref = 600 if square else 600
 
@@ -375,17 +408,19 @@ def tdrCanvas(canvName, x_min, x_max, y_min, y_max, nameXaxis, nameYaxis, square
   canv.SetFrameBorderMode(0)
   canv.SetLeftMargin( (B/W if isExtraSpace else B/W) if is2D else L/W+0.02)
   canv.SetRightMargin( (B/W+0.04 if isExtraSpace else B/W+0.01) if is2D else R/W+0.01)
-  canv.SetTopMargin( T/H )
-  canv.SetBottomMargin(B/H+0.02)
+  canv.SetTopMargin(T/H)
+  canv.SetBottomMargin(B/H + 0.02)
 
-  h = canv.DrawFrame(x_min,y_min,x_max,y_max)
-  h.GetYaxis().SetTitleOffset((1.25 if isExtraSpace else 1.2) if square else (1.0 if isExtraSpace else 0.8))
+  # Draw frame and set axis labels
+  h = canv.DrawFrame(x_min, y_min, x_max, y_max)
+  y_offset = (1.25 if isExtraSpace else 1.2) if square else (1.0 if isExtraSpace else 0.8)
+  h.GetYaxis().SetTitleOffset(y_offset)
   h.GetXaxis().SetTitleOffset(0.9)
   h.GetXaxis().SetTitle(nameXaxis)
   h.GetYaxis().SetTitle(nameYaxis)
   h.Draw('AXIS')
 
-  # writing the lumi information and the CMS 'logo'
+  # Draw CMS logo and update canvas
   CMS_lumi(canv, iPos)
   canv.Update()
   canv.RedrawAxis()
@@ -400,7 +435,7 @@ def tdrCanvasResetAxes(canv, x_min, x_max, y_min, y_max):
   GettdrCanvasHist(canv).GetYaxis().SetRangeUser(y_min,y_max)
 
 def tdrDiCanvas(canvName, x_min, x_max, y_min, y_max, y_min2, y_max2, nameXaxis, nameYaxis, nameYaxis2, square=kRectangular, iPos=11):
-  tdrStyle = setTDRStyle()
+  setTDRStyle()
 
   W_ref = 600 if square else 800
   H_ref = 350 if square else 600
@@ -481,17 +516,18 @@ def tdrDiCanvas(canvName, x_min, x_max, y_min, y_max, y_min2, y_max2, nameXaxis,
 
 def tdrLeg(x1, y1, x2, y2, textSize=0.04, textFont=42, textColor=rt.kBlack):
   leg = rt.TLegend(x1, y1, x2, y2, '', 'brNDC')
-  leg.SetFillStyle(rt.kNone)
-  leg.SetBorderSize(0)
   leg.SetTextSize(textSize)
   leg.SetTextFont(textFont)
   leg.SetTextColor(textColor)
+  leg.SetBorderSize(0)
+  leg.SetFillStyle(0)
+  leg.SetFillColor(0)
   leg.Draw()
   return leg
 
 #To be fixed as python deletes obj before time
-def tdrHeader(leg, legTitle, textAlign=12, textSize=0.04, textFont=42, textColor=rt.kBlack, isToRemove = True):
-  header = rt.TLegendEntry( 0, legTitle, 'h' )
+def tdrHeader(leg, legTitle, textAlign=12, textSize=0.04, textFont=42, textColor=rt.kBlack, isToRemove=True):
+  header = rt.TLegendEntry(0, legTitle, "h")
   header.SetTextFont(textFont)
   header.SetTextSize(textSize)
   header.SetTextAlign(textAlign)
@@ -531,5 +567,6 @@ def tdrDrawLine(line, lcolor=rt.kRed, lstyle=rt.kSolid, lwidth=2):
 
 
 
-def ScaleLeg(name, scale = 0.75):
+def ScaleText(name, scale = 0.75):
     return '#scale['+str(scale)+']{'+str(name)+'}'
+

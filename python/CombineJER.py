@@ -33,6 +33,20 @@ def CalculateMPFX(g1, g2, name, RC):
     return gnew
 
 
+def CalculateMPFX2(g1, g2, name, RC):
+    gnew = g1.Clone(name)
+    for bin in range(0,g1.GetN()):
+        x = list(gnew.GetX())[bin]
+        y1 = list(g1.GetY())[bin]
+        y2 = list(g2.GetY())[bin]
+        ex = list(g1.GetEX())[bin]
+        ey = oplus(list(g1.GetEY())[bin], list(g2.GetEY())[bin])
+        if (x==0): continue
+        gnew.SetPoint(bin, x, oplus(oplus(y1,y2), RC/x) )
+        gnew.SetPointError(bin, ex, ey)
+    return gnew
+
+
 
 
 class CombineJER():
@@ -137,6 +151,13 @@ class CombineJER():
                 self.graphs[name] = self.files['dijet CHS'].Get('dijet_balance_jer_'+type+'_0p261_0p522_'+mode+'_nominal')
                 if type=='MC':
                     self.graphs[name.replace('MC', 'Ratio')] = MakeRatioGraphs(self.graphs[name.replace('MC', 'Data')], self.graphs[name], name.replace('MC', 'Ratio'))
+        
+        self.files['yannick'] = rt.TFile(self.inputPath+'MPF+MPFx.root')
+        for type in ['MC']:
+            name = ' '.join(['yannick',type,'JER'])
+            self.graphs[name.replace('JER', 'MPF')] = HistToGraph(self.files['yannick'].Get('MPF'))
+            self.graphs[name] = HistToGraph(self.files['yannick'].Get('MPFx'))
+            self.graphs[name.replace('JER', 'MPFX')] = CalculateMPFX(self.graphs[name.replace('JER', 'MPF')], self.graphs[name], name.replace('JER', 'MPFX'), 0)
     
     def LoadZjet(self):
         self.files['zjet'] = rt.TFile(self.inputPath+'zjet_balance_UL2018_jetpt_nominal_small.root')
@@ -188,7 +209,7 @@ class CombineJER():
         if 'canv' in self.__dict__: self.canv.Close()
         XMin, XMax = (15, 4500)
         YMin, YMax = (0.85,1.2) if zoom else (0.85,1.6)
-        xName, yName = ('p_{T,ave} [GeV]', 'RMS')
+        xName, yName = ('p_{T,jet} [GeV]', 'Jet Energy Resolution')
         RName = 'MC/Truth' if zoom else 'Data/MC'
         self.dicanv = tdrDiCanvas('dicanvas_JER'+self.year+canvName, XMin, XMax, 0.0001,0.45, YMin, YMax, xName, yName, RName)
         self.dicanv.cd(1).SetLogx(True)
@@ -223,6 +244,14 @@ class CombineJER():
             ('high-PU MC MPF',    {'mcolor':rt.kRed+2,  'marker':rt.kOpenSquare, 'msize':0.6}),
             ('high-PU Data MPFX', {'mcolor':rt.kBlue+2, 'marker':rt.kFullSquare, 'msize':0.6}),
             ('high-PU MC MPFX',   {'mcolor':rt.kBlue+2, 'marker':rt.kOpenSquare, 'msize':0.6}),
+
+            # ('low-PU Data JER',   {'mcolor':rt.kOrange+1, 'marker':rt.kFullCircle, 'msize':0.4}),
+            # ('low-PU MC JER',     {'mcolor':rt.kOrange+1, 'marker':rt.kOpenCircle, 'msize':0.4}),
+            # ('high-PU Data JER',  {'mcolor':rt.kGreen+2,  'marker':rt.kFullSquare, 'msize':0.4}),
+            # ('high-PU MC JER',    {'mcolor':rt.kGreen+2,  'marker':rt.kOpenSquare, 'msize':0.4}),
+            # ('yannick MC JER',         {'mcolor':rt.kBlack,  'marker':rt.kFullCross,       'msize':0.8}),
+            ('yannick MC MPF',     {'mcolor':rt.kGray,   'marker':rt.kFullCross,       'msize':0.8}),
+            ('yannick MC MPFX',    {'mcolor':rt.kGray+1, 'marker':rt.kFullCross,       'msize':0.8}),
         ])
         self.CreateCanvas()
         self.canv.cd()
@@ -299,16 +328,16 @@ class CombineJER():
             if fit_k:
                 func_Data = self.funcs[func_name.replace('Ratio','Data')]
                 for i in range(npars_ratio):
-                    print(mode, i,func_Data.GetParameter(i))
+                    # print(mode, i,func_Data.GetParameter(i))
                     func.FixParameter(i,func_Data.GetParameter(i))
             else:
                 func_MC = self.funcs[func_name.replace('Ratio','MC')]
                 func_Data = self.funcs[func_name.replace('Ratio','Data')]
                 for i in range(func_MC.GetNpar()):
-                    print(mode, i,func_MC.GetParameter(i))
+                    # print(mode, i,func_MC.GetParameter(i))
                     func.FixParameter(i,func_MC.GetParameter(i))
                 for i in range(func_Data.GetNpar()):
-                    print(mode, i+func_MC.GetNpar(),func_Data.GetParameter(i))
+                    # print(mode, i+func_MC.GetNpar(),func_Data.GetParameter(i))
                     func.FixParameter(i+func_MC.GetNpar(),func_Data.GetParameter(i))
         
     def Plot(self, to_plot, pdfname, nEntries=8,nFunc=2):
@@ -371,7 +400,15 @@ class CombineJER():
             ('combined MPFX Data JER',        {'mcolor':rt.kAzure+2,   'marker':rt.kFullCircle,      'msize':0.8, 'label':'Data'  }),
             ('combined MPFX MC JER',          {'mcolor':rt.kRed+1,     'marker':rt.kOpenCircle,      'msize':0.8, 'label':'MC'    }),
             ('combined MPFX Ratio JER',       {'mcolor':rt.kBlack,     'marker':rt.kFullCircle,      'msize':0.8, 'label':'Ratio' }),
+
+            ('yannick MC JER',         {'mcolor':rt.kBlack,  'marker':rt.kFullCross,       'msize':0.8}),
+            ('yannick MC MPF',         {'mcolor':rt.kGray,   'marker':rt.kFullCross,       'msize':0.8}),
+            ('yannick MC MPFX',        {'mcolor':rt.kGray+1, 'marker':rt.kFullCross,       'msize':0.8}),
         ])
+
+        # to_plot.append('yannick MC JER')
+        # to_plot.append('yannick MC MPF')
+        # to_plot.append('yannick MC MPFX')
         self.leg.Clear()
         self.leg_func.Clear()
         self.dicanv.cd(1)
