@@ -130,6 +130,10 @@ class CombineJER():
             count += 1
         self.data_RC /=count
         self.mc_RC /=count
+        # self.data_RC = oplus(self.data_RC, sqrt(2.8*0.5))
+        # self.mc_RC = oplus(self.mc_RC, sqrt(2.5*0.5))
+        self.data_RC += sqrt(2.8*0.5)
+        self.mc_RC += sqrt(2.5*0.5)
         # self.data_RC *=1.5
         # self.mc_RC = 0
         # self.data_RC = 0

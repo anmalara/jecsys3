@@ -42,6 +42,7 @@ commonScheme = {
     'UL17':       '2017',
     'UL18':       '2018',
     '2022':       '2022',
+    '2023':       '2023',
     'Run2':       'Run 2',
     'Run3':       'Run 3',
     },
@@ -51,6 +52,8 @@ commonScheme = {
     'UL16':       '37',
     'UL17':       '41',
     'UL18':       '60',
+    '2022':       '31.5',
+    '2023':       '-1',
     'Run2':       '138',
     'Run3':       '31.5',
     },
@@ -68,6 +71,8 @@ commonScheme = {
     'UL16':       22,
     'UL17':       33,
     'UL18':       32,
+    '2022':       65,
+    '2023':       65,
     'Run2':       37,
     },
   'energy': {
@@ -85,6 +90,15 @@ commonScheme = {
 
 cms_lumi = 'Run 2 Legacy, 138 fb^{-1}'
 cms_energy = '13'
+
+def SetEnergy(year):
+  global cms_energy
+  cms_energy = commonScheme['energy'][year]
+
+def SetLumi(year):
+  global cms_lumi
+  cms_lumi = commonScheme['legend'][year]
+  if 'UL' in year: cms_lumi += ' Legacy'
 
 cmsText     = 'CMS'
 extraText   = 'Preliminary'
@@ -570,3 +584,16 @@ def tdrDrawLine(line, lcolor=rt.kRed, lstyle=rt.kSolid, lwidth=2):
 def ScaleText(name, scale = 0.75):
     return '#scale['+str(scale)+']{'+str(name)+'}'
 
+
+def FixXAsisPartition(canv, shift=None, textsize=0.05, bins=[30,100,300,1000, 3000]):
+  canv.SetLogx(True)
+  GettdrCanvasHist(canv).GetXaxis().SetNoExponent(True)
+  latex = rt.TLatex()
+  latex.SetTextFont(42)
+  latex.SetTextSize(textsize)
+  latex.SetTextAlign(23)
+  if shift==None:
+    YMin, YMax = (GettdrCanvasHist(canv).GetYaxis().GetXmin(), GettdrCanvasHist(canv).GetYaxis().GetXmax())
+    shift = YMin-0.018*(YMax-YMin)
+  for xbin in bins:
+    latex.DrawLatex(xbin,shift,str(xbin))
