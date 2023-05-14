@@ -112,7 +112,7 @@ static const std::map<TString, std::map<TString,TString>> shapes_map = {
   {"fhh",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","fhh"},     {"appliesTo","Resp"}, {"form", "-0.7938-0.5798*pow(x/396.1,1.412)/(1+pow(x/396.1,1.412))*(1-pow(x/396.1,-1.412))"},}},
   {"feh",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","feh"},     {"appliesTo","Resp"}, {"form", "-0.2603-0.2196*pow(x/409.4,1.276)/(1+pow(x/409.4,1.276))*(1-pow(x/409.4,-1.276))"},}},
   {"fhw",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","fhw"},     {"appliesTo","Resp"}, {"form", "0.3*(0.9526-0.3883*(1+(pow(x/1285,2.46)-1)/(pow(x/1285,2.46)+1))+18.1/x-2.062*log(x)/x)"},}},
-  {"fl1",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","fl1"},     {"appliesTo","Resp"}, {"form", "100*(1-(0.350077+0.553560*log(x)-0.0527681*pow(log(x),2))/x-1)"},}},
+  {"fl1",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","fl1"},     {"appliesTo","Resp"}, {"form", "(1-(0.350077+0.553560*log(x)-0.0527681*pow(log(x),2))/x-1)"},}},
   {"ftd-ftm",  {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ftd-ftm"}, {"appliesTo","Resp"}, {"form", "3*((-0.116-0.6417*pow(x/208.,-0.3051)+23.63/x)-(0.2683-0.6994*pow(x/208.,-0.3051)+18.49/x))"},}},
   {"f1q3-1",   {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","f1q3-1"},  {"appliesTo","Resp"}, {"form", "0.01*(0.7966+0.9311*(pow(0.01*x,-1)-1))"},}},
 
@@ -139,5 +139,66 @@ static const std::map<TString, std::map<TString,TString>> shapes_map = {
   {"fhw_chf",  {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","fhw"}, {"appliesTo","chf"}, {"form", "-0.2176+1.064e-05*pow(x,1.373)+0/x"},}},
   {"fhw_nhf",  {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","fhw"}, {"appliesTo","nhf"}, {"form", "-5.151+4.495*pow(x,0.03335)-12.3/x"},}},
   {"fhw_nef",  {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","fhw"}, {"appliesTo","nef"}, {"form", "0.8417-0.2605*pow(x,0.2289)+2.426/x"},}},
+
+
+  {"hadHcalp3",              {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","hadHcalp3"},          {"appliesTo","Resp"}, {"form", "+2.792e+00-2.377e+00*log(x)+6.981e-01*pow(log(x),2)-7.477e-02*pow(log(x),3)+2.779e-03*pow(log(x),4)"},}},
+  {"hadHcalp3_chf",          {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","hadHcalp3"},          {"appliesTo","chf"},  {"form", "-2.368e+00+1.749e+00*log(x)-4.589e-01*pow(log(x),2)+4.307e-02*pow(log(x),3)-1.183e-03*pow(log(x),4)"},}},
+  {"hadHcalp3_nhf",          {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","hadHcalp3"},          {"appliesTo","nhf"},  {"form", "-4.683e+00+3.771e+00*log(x)-1.038e+00*pow(log(x),2)+1.224e-01*pow(log(x),3)-5.071e-03*pow(log(x),4)"},}},
+  {"hadHcalp3_nef",          {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","hadHcalp3"},          {"appliesTo","nef"},  {"form", "+8.141e+00-6.447e+00*log(x)+1.779e+00*pow(log(x),2)-2.020e-01*pow(log(x),3)+7.952e-03*pow(log(x),4)"},}},
+
+  {"hadHcalZB097",           {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","hadHcalZB097"},       {"appliesTo","Resp"}, {"form", "-7.714e+00+7.581e+00*log(x)-2.665e+00*pow(log(x),2)+3.940e-01*pow(log(x),3)-2.049e-02*pow(log(x),4)"},}},
+  {"hadHcalZB097_chf",       {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","hadHcalZB097"},       {"appliesTo","chf"},  {"form", "+3.089e+00-2.918e+00*log(x)+1.006e+00*pow(log(x),2)-1.477e-01*pow(log(x),3)+7.648e-03*pow(log(x),4)"},}},
+  {"hadHcalZB097_nhf",       {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","hadHcalZB097"},       {"appliesTo","nhf"},  {"form", "-9.328e+00+7.999e+00*log(x)-2.493e+00*pow(log(x),2)+3.336e-01*pow(log(x),3)-1.605e-02*pow(log(x),4)"},}},
+  {"hadHcalZB097_nef",       {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","hadHcalZB097"},       {"appliesTo","nef"},  {"form", "+4.981e+00-4.021e+00*log(x)+1.166e+00*pow(log(x),2)-1.446e-01*pow(log(x),3)+6.489e-03*pow(log(x),4)"},}},
+
+  {"hadHcalZB100",           {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","hadHcalZB100"},       {"appliesTo","Resp"}, {"form", "-9.705e+00+8.983e+00*log(x)-2.986e+00*pow(log(x),2)+4.190e-01*pow(log(x),3)-2.066e-02*pow(log(x),4)"},}},
+  {"hadHcalZB100_chf",       {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","hadHcalZB100"},       {"appliesTo","chf"},  {"form", "+4.857e+00-4.366e+00*log(x)+1.427e+00*pow(log(x),2)-1.990e-01*pow(log(x),3)+9.812e-03*pow(log(x),4)"},}},
+  {"hadHcalZB100_nhf",       {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","hadHcalZB100"},       {"appliesTo","nhf"},  {"form", "-9.351e+00+7.887e+00*log(x)-2.408e+00*pow(log(x),2)+3.141e-01*pow(log(x),3)-1.461e-02*pow(log(x),4)"},}},
+  {"hadHcalZB100_nef",       {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","hadHcalZB100"},       {"appliesTo","nef"},  {"form", "+3.789e+00-2.934e+00*log(x)+8.056e-01*pow(log(x),2)-9.292e-02*pow(log(x),3)+3.776e-03*pow(log(x),4)"},}},
+
+  {"hadHcalZB106",           {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","hadHcalZB106"},       {"appliesTo","Resp"}, {"form", "-2.023e+01+1.720e+01*log(x)-5.226e+00*pow(log(x),2)+6.681e-01*pow(log(x),3)-2.976e-02*pow(log(x),4)"},}},
+  {"hadHcalZB106_chf",       {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","hadHcalZB106"},       {"appliesTo","chf"},  {"form", "+1.035e+01-8.927e+00*log(x)+2.779e+00*pow(log(x),2)-3.677e-01*pow(log(x),3)+1.719e-02*pow(log(x),4)"},}},
+  {"hadHcalZB106_nhf",       {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","hadHcalZB106"},       {"appliesTo","nhf"},  {"form", "-1.206e+01+9.880e+00*log(x)-2.898e+00*pow(log(x),2)+3.578e-01*pow(log(x),3)-1.535e-02*pow(log(x),4)"},}},
+  {"hadHcalZB106_nef",       {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","hadHcalZB106"},       {"appliesTo","nef"},  {"form", "+3.033e+00-2.060e+00*log(x)+4.513e-01*pow(log(x),2)-3.274e-02*pow(log(x),3)+1.314e-04*pow(log(x),4)"},}},
+
+  {"ecalm3",                 {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ecalm3"},             {"appliesTo","Resp"}, {"form", "-9.628e-01+1.009e+00*log(x)-4.167e-01*pow(log(x),2)+5.326e-02*pow(log(x),3)-2.206e-03*pow(log(x),4)"},}},
+  {"ecalm3_chf",             {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ecalm3"},             {"appliesTo","chf"},  {"form", "+5.813e+00-4.086e+00*log(x)+1.102e+00*pow(log(x),2)-1.220e-01*pow(log(x),3)+4.691e-03*pow(log(x),4)"},}},
+  {"ecalm3_nhf",             {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ecalm3"},             {"appliesTo","nhf"},  {"form", "-1.636e-01+1.183e-01*log(x)-9.015e-03*pow(log(x),2)-3.084e-03*pow(log(x),3)+3.948e-04*pow(log(x),4)"},}},
+  {"ecalm3_nef",             {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ecalm3"},             {"appliesTo","nef"},  {"form", "-5.823e+00+4.103e+00*log(x)-1.133e+00*pow(log(x),2)+1.300e-01*pow(log(x),3)-5.306e-03*pow(log(x),4)"},}},
+
+  {"ecalGain1p3",            {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ecalGain1p3"},        {"appliesTo","Resp"}, {"form", "-8.351e+00+6.497e+00*log(x)-1.773e+00*pow(log(x),2)+1.998e-01*pow(log(x),3)-7.719e-03*pow(log(x),4)"},}},
+  {"ecalGain1p3_chf",        {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ecalGain1p3"},        {"appliesTo","chf"},  {"form", "+2.612e+00-2.118e+00*log(x)+6.084e-01*pow(log(x),2)-7.302e-02*pow(log(x),3)+3.065e-03*pow(log(x),4)"},}},
+  {"ecalGain1p3_nhf",        {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ecalGain1p3"},        {"appliesTo","nhf"},  {"form", "-9.112e-01+8.269e-01*log(x)-2.729e-01*pow(log(x),2)+3.890e-02*pow(log(x),3)-2.026e-03*pow(log(x),4)"},}},
+  {"ecalGain1p3_nef",        {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ecalGain1p3"},        {"appliesTo","nef"},  {"form", "-3.583e-01+2.078e-01*log(x)-2.141e-02*pow(log(x),2)-4.756e-03*pow(log(x),3)+7.013e-04*pow(log(x),4)"},}},
+
+  {"ecalGain6p3",            {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ecalGain6p3"},        {"appliesTo","Resp"}, {"form", "-5.587e+00+4.992e+00*log(x)-1.596e+00*pow(log(x),2)+2.157e-01*pow(log(x),3)-1.033e-02*pow(log(x),4)"},}},
+  {"ecalGain6p3_chf",        {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ecalGain6p3"},        {"appliesTo","chf"},  {"form", "+2.414e+00-2.133e+00*log(x)+6.755e-01*pow(log(x),2)-9.053e-02*pow(log(x),3)+4.308e-03*pow(log(x),4)"},}},
+  {"ecalGain6p3_nhf",        {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ecalGain6p3"},        {"appliesTo","nhf"},  {"form", "+7.040e-01-5.838e-01*log(x)+1.728e-01*pow(log(x),2)-2.155e-02*pow(log(x),3)+9.501e-04*pow(log(x),4)"},}},
+  {"ecalGain6p3_nef",        {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ecalGain6p3"},        {"appliesTo","nef"},  {"form", "-3.593e+00+3.112e+00*log(x)-9.667e-01*pow(log(x),2)+1.272e-01*pow(log(x),3)-5.959e-03*pow(log(x),4)"},}},
+
+  {"ecalGain12p3",           {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ecalGain12p3"},       {"appliesTo","Resp"}, {"form", "+1.542e+01-1.289e+01*log(x)+3.895e+00*pow(log(x),2)-4.819e-01*pow(log(x),3)+2.084e-02*pow(log(x),4)"},}},
+  {"ecalGain12p3_chf",       {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ecalGain12p3"},       {"appliesTo","chf"},  {"form", "-1.059e+01+8.124e+00*log(x)-2.321e+00*pow(log(x),2)+2.773e-01*pow(log(x),3)-1.169e-02*pow(log(x),4)"},}},
+  {"ecalGain12p3_nhf",       {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ecalGain12p3"},       {"appliesTo","nhf"},  {"form", "-9.448e-02+1.776e-02*log(x)-1.417e-03*pow(log(x),2)-4.896e-04*pow(log(x),3)+5.913e-05*pow(log(x),4)"},}},
+  {"ecalGain12p3_nef",       {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ecalGain12p3"},       {"appliesTo","nef"},  {"form", "+1.063e+01-8.107e+00*log(x)+2.314e+00*pow(log(x),2)-2.758e-01*pow(log(x),3)+1.158e-02*pow(log(x),4)"},}},
+
+  {"trkEff0999Nm1",          {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEff0999Nm1"},      {"appliesTo","Resp"}, {"form", "-2.415e+00+2.029e+00*log(x)-6.003e-01*pow(log(x),2)+7.296e-02*pow(log(x),3)-3.117e-03*pow(log(x),4)"},}},
+  {"trkEff0999Nm1_chf",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEff0999Nm1"},      {"appliesTo","chf"},  {"form", "-1.755e+00+9.661e-01*log(x)-8.482e-02*pow(log(x),2)-2.171e-02*pow(log(x),3)+2.382e-03*pow(log(x),4)"},}},
+  {"trkEff0999Nm1_nhf",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEff0999Nm1"},      {"appliesTo","nhf"},  {"form", "-2.462e+00+2.152e+00*log(x)-6.830e-01*pow(log(x),2)+9.276e-02*pow(log(x),3)-4.384e-03*pow(log(x),4)"},}},
+  {"trkEff0999Nm1_nef",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEff0999Nm1"},      {"appliesTo","nef"},  {"form", "+5.553e+00-4.180e+00*log(x)+1.069e+00*pow(log(x),2)-1.073e-01*pow(log(x),3)+3.559e-03*pow(log(x),4)"},}},
+
+  {"trkEff0998Nm1",          {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEff0998Nm1"},      {"appliesTo","Resp"}, {"form", "-4.645e+00+3.917e+00*log(x)-1.161e+00*pow(log(x),2)+1.410e-01*pow(log(x),3)-6.012e-03*pow(log(x),4)"},}},
+  {"trkEff0998Nm1_chf",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEff0998Nm1"},      {"appliesTo","chf"},  {"form", "-5.411e+00+3.418e+00*log(x)-5.853e-01*pow(log(x),2)+6.119e-03*pow(log(x),3)+2.638e-03*pow(log(x),4)"},}},
+  {"trkEff0998Nm1_nhf",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEff0998Nm1"},      {"appliesTo","nhf"},  {"form", "-5.007e+00+4.371e+00*log(x)-1.388e+00*pow(log(x),2)+1.887e-01*pow(log(x),3)-8.947e-03*pow(log(x),4)"},}},
+  {"trkEff0998Nm1_nef",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEff0998Nm1"},      {"appliesTo","nef"},  {"form", "+1.121e+01-8.435e+00*log(x)+2.159e+00*pow(log(x),2)-2.174e-01*pow(log(x),3)+7.266e-03*pow(log(x),4)"},}},
+
+  {"trkEffNtrk1m3",          {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEffNtrk1m3"},      {"appliesTo","Resp"}, {"form", "+6.020e+00-5.647e+00*log(x)+1.649e+00*pow(log(x),2)-1.955e-01*pow(log(x),3)+8.229e-03*pow(log(x),4)"},}},
+  {"trkEffNtrk1m3_chf",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEffNtrk1m3"},      {"appliesTo","chf"},  {"form", "+4.784e+00-5.104e+00*log(x)+1.600e+00*pow(log(x),2)-1.994e-01*pow(log(x),3)+8.710e-03*pow(log(x),4)"},}},
+  {"trkEffNtrk1m3_nhf",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEffNtrk1m3"},      {"appliesTo","nhf"},  {"form", "-2.550e+00+2.776e+00*log(x)-8.980e-01*pow(log(x),2)+1.156e-01*pow(log(x),3)-5.216e-03*pow(log(x),4)"},}},
+  {"trkEffNtrk1m3_nef",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEffNtrk1m3"},      {"appliesTo","nef"},  {"form", "-3.124e+00+3.086e+00*log(x)-9.373e-01*pow(log(x),2)+1.149e-01*pow(log(x),3)-4.982e-03*pow(log(x),4)"},}},
+
+  {"trkEffNtrk2ToInfm3",     {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEffNtrk2ToInfm3"}, {"appliesTo","Resp"}, {"form", "+3.457e+00-1.972e+00*log(x)+2.966e-01*pow(log(x),2)-9.399e-03*pow(log(x),3)-4.569e-04*pow(log(x),4)"},}},
+  {"trkEffNtrk2ToInfm3_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEffNtrk2ToInfm3"}, {"appliesTo","chf"},  {"form", "-8.492e+00+7.806e+00*log(x)-2.447e+00*pow(log(x),2)+2.963e-01*pow(log(x),3)-1.222e-02*pow(log(x),4)"},}},
+  {"trkEffNtrk2ToInfm3_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEffNtrk2ToInfm3"}, {"appliesTo","nhf"},  {"form", "-4.057e+00+2.813e+00*log(x)-6.923e-01*pow(log(x),2)+7.966e-02*pow(log(x),3)-3.445e-03*pow(log(x),4)"},}},
+  {"trkEffNtrk2ToInfm3_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEffNtrk2ToInfm3"}, {"appliesTo","nef"},  {"form", "+1.414e+01-1.197e+01*log(x)+3.551e+00*pow(log(x),2)-4.294e-01*pow(log(x),3)+1.815e-02*pow(log(x),4)"},}},
 
 };

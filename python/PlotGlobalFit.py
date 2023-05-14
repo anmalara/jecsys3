@@ -20,6 +20,9 @@ extraname += '_mpfdb'
 extraname += '_pf'
 # extraname += '_nopf'
 
+extraname += '_old'
+# extraname += '_new'
+
 class PlotGlobalFit():
     def __init__(self, run='Run2', year='Run2', algo='AK4 CHS'):
         self.run = run
@@ -31,7 +34,9 @@ class PlotGlobalFit():
             self.inputPath = '../rootfiles/'
             self.outputPath = '../pdfs/'
         os.system('mkdir -p '+self.outputPath)
-        self.filename = 'output'+run+'.root'
+        # self.filename = 'output'+run+'.root'
+        self.filename = 'output'+run+'_old.root'
+        # self.filename = 'output'+run+'_new.root'
         TDR.cms_lumi = TDR.commonScheme['legend'][self.year]+', '+TDR.commonScheme['lumi'][self.year]+' fb^{-1}'
         TDR.cms_energy = TDR.commonScheme['energy'][self.year]
         TDR.extraText3 = []
@@ -51,6 +56,22 @@ class PlotGlobalFit():
             ('offset',  {'leg': 'offset (p6)',    'color': rt.kTeal+2,   'npar':3, 'func': '(fl1-1)*100'}),
             ('mctrack', {'leg': 'MC tracks (p7)', 'color': rt.kGreen-1,  'npar':4, 'func': 'ftd-ftm'}),
             ('flav',    {'leg': 'flavor (p8)',    'color': rt.kOrange+1, 'npar':3, 'func': 'f1q3-1'}),
+
+            # ('offset',  {'leg': 'offset',                          'color': rt.kTeal+2,   'npar':3, 'func': 'fl1'}),
+            # ('shower',  {'leg': 'shower',                          'color': rt.kOrange,   'npar':6, 'func': 'fhw'}),
+            # ('flav',    {'leg': 'flavor',                          'color': rt.kOrange+1, 'npar':3, 'func': 'f1q3-1'}),
+            # ('hcal',    {'leg': 'HCAL +3%',                        'color': rt.kRed+1,    'npar':5, 'func': 'hadHcalp3'}),
+            # ('ZB3',     {'leg': 'ZB -3%',                          'color': rt.kCyan+1,   'npar':5, 'func': 'hadHcalZB097'}),
+            # ('ZB0',     {'leg': 'ZB +0%',                          'color': rt.kAzure-2,  'npar':5, 'func': 'hadHcalZB100'}),
+            # ('ZB6',     {'leg': 'ZB +6%',                          'color': rt.kViolet+2, 'npar':5, 'func': 'hadHcalZB106'}),
+            # ('ecal',    {'leg': 'ECAL +3%',                        'color': rt.kGreen+2,  'npar':5, 'func': 'ecalm3'}),
+            # ('gain1',   {'leg': 'gain 1 +3%',                      'color': rt.kTeal+2,   'npar':5, 'func': 'ecalGain1p3'}),
+            # ('gain6',   {'leg': 'gain 6 +3%',                      'color': rt.kGreen-1,  'npar':5, 'func': 'ecalGain6p3'}),
+            # ('gain12',  {'leg': 'gain 12 +3%',                     'color': rt.kGreen+1,  'npar':5, 'func': 'ecalGain12p3'}),
+            # ('TkrEff1', {'leg': '#varepsilon_{trk}=0.999^{N-1}',   'color': rt.kOrange-1, 'npar':5, 'func': 'trkEff0999Nm1'}),
+            # ('TkrEff2', {'leg': '#varepsilon_{trk}=0.998^{N-1}',   'color': rt.kOrange+0, 'npar':5, 'func': 'trkEff0998Nm1'}),
+            # ('TrkN1',   {'leg': 'N_{trk}=1 +3%',                   'color': rt.kOrange+1, 'npar':5, 'func': 'trkEffNtrk1m3'}),
+            # ('TrkN2',   {'leg': 'N_{trk}>1 +3%',                   'color': rt.kOrange+2, 'npar':5, 'func': 'trkEffNtrk2ToInfm3'}),
 
             ('const',   {'leg': 'const (p0)',     'color': rt.kRed+1,    'npar':1, 'func': 'const'}),
             ])
@@ -72,8 +93,8 @@ class PlotGlobalFit():
             self.infos['zjet_'+mode]            = {'objName':'Resp_zjet_'+mode,            'legName': 'Z+jet',                                       'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':1.2, 'marker': ROOT.kFullStar if mode!='db' else ROOT.kOpenStar,                 'mcolor':ROOT.kRed+1} }
             self.infos['gjet_'+mode]            = {'objName':'Resp_gamjet_'+mode,          'legName': '#gamma+jet',                                  'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.8, 'marker': ROOT.kFullSquare if mode!='db' else ROOT.kOpenSquare,             'mcolor':ROOT.kBlue+1} }
             self.infos['hadw_'+mode]            = {'objName':'Resp_hadw_'+mode,            'legName': 'W#rightarrow qq',                             'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.9, 'marker': ROOT.kFullCircle if mode!='db' else ROOT.kOpenCircle,             'mcolor':ROOT.kGreen+2} }
-            self.infos['multijet_'+mode]        = {'objName':'Resp_multijet_'+mode,        'legName': 'Multijet (p_{T}^{'+ScaleLeg('leading')+'})',  'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.9, 'marker': ROOT.kFullTriangleUp if mode!='db' else ROOT.kOpenTriangleUp,     'mcolor':ROOT.kBlack} }
-            self.infos['multijet_recoil_'+mode] = {'objName':'Resp_multijet_recoil_'+mode, 'legName': 'Multijet (p_{T}^{'+ScaleLeg('recoil')+'})',   'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.9, 'marker': ROOT.kFullTriangleDown if mode!='db' else ROOT.kOpenTriangleDown, 'mcolor':ROOT.kGray+1} }
+            self.infos['multijet_'+mode]        = {'objName':'Resp_multijet_'+mode,        'legName': 'Multijet (p_{T}^{'+ScaleText('leading')+'})', 'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.9, 'marker': ROOT.kFullTriangleUp if mode!='db' else ROOT.kOpenTriangleUp,     'mcolor':ROOT.kBlack} }
+            self.infos['multijet_recoil_'+mode] = {'objName':'Resp_multijet_recoil_'+mode, 'legName': 'Multijet (p_{T}^{'+ScaleText('recoil')+'})',  'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.9, 'marker': ROOT.kFullTriangleDown if mode!='db' else ROOT.kOpenTriangleDown, 'mcolor':ROOT.kGray+1} }
             self.infos['incljet_'+mode]         = {'objName':'Resp_incljet_'+mode,         'legName': 'Incl. jet',                                   'legType':mode, 'legStyle': 'lep', 'plotinfo': {'opt':'Pz', 'msize':0.8, 'marker': ROOT.kFullDiamond if mode!='db' else ROOT.kOpenDiamond,           'mcolor':ROOT.kOrange+2} }
 
         self.pf_style = OrderedDict([('chf',(ROOT.kRed+1,ROOT.kFullTriangleUp)), ('nhf',(ROOT.kGreen+2,ROOT.kFullTriangleDown)), ('nef',(ROOT.kAzure+2,ROOT.kFullSquare))])
@@ -116,19 +137,6 @@ class PlotGlobalFit():
                 del self.infos_PF[name]
 
 
-    def FixXAsisPartition(self, shift=None):
-        self.canv.SetLogx(True)
-        GettdrCanvasHist(self.canv).GetXaxis().SetNoExponent(True)
-        latex = ROOT.TLatex()
-        latex.SetTextFont(42)
-        latex.SetTextSize(0.05)
-        latex.SetTextAlign(23)
-        if shift==None:
-            YMin, YMax = (GettdrCanvasHist(self.canv).GetYaxis().GetXmin(), GettdrCanvasHist(self.canv).GetYaxis().GetXmax())
-            shift = YMin-0.018*(YMax-YMin)
-        for xbin in [30,100,300,1000, 3000]:
-            latex.DrawLatex(xbin,shift,str(xbin))
-
     def CreateCanvasGlobalFit(self, canvName):
         XMin, XMax = (15, 4500)
         YMin, YMax = (0.95,1.07)
@@ -138,7 +146,7 @@ class PlotGlobalFit():
         if canvName =='postfit': yName = 'post-fit '+yName
         yName = yName.capitalize()
         self.canv = tdrCanvas('PlotGlobalFit'+self.year+canvName, XMin, XMax, YMin, YMax, 'p_{T} [GeV]', yName, square=kSquare, isExtraSpace=True)
-        self.FixXAsisPartition()
+        FixXAsisPartition(self.canv)
         l,r,t,b = (self.canv.GetLeftMargin(),self.canv.GetRightMargin(),self.canv.GetTopMargin(),self.canv.GetBottomMargin())
         nSamples_mpf   = sum(info['legType']=='mpf'   for info in self.infos.values())
         nSamples_db    = sum(info['legType']=='db'    for info in self.infos.values())
@@ -188,7 +196,7 @@ class PlotGlobalFit():
         canvName = 'PFVariations'+self.year
         yName = 'PF composition change (10^{-2})'
         self.canv = tdrCanvas(canvName, XMin, XMax, YMin, YMax, 'p_{T} [GeV]', yName, square=kSquare, isExtraSpace=True)
-        self.FixXAsisPartition()
+        FixXAsisPartition(self.canv)
         line = ROOT.TLine(XMin,0, XMax, 0)
         tdrDrawLine(line, lcolor=ROOT.kBlack, lstyle=ROOT.kDashed, lwidth=1)
         for name, info in self.infos_PF.items():
@@ -211,7 +219,7 @@ class PlotGlobalFit():
             self.shapes['postfit'+pf] = rt.TF1('postfit'+pf, postfit,15,4500)
             # tdrDrawLine(self.shapes['prefit'+pf], lcolor=self.pf_style[pf.replace('_','')][0], lstyle=rt.kDashed, lwidth=2)
             tdrDrawLine(self.shapes['postfit'+pf], lcolor=self.pf_style[pf.replace('_','')][0], lstyle=rt.kSolid, lwidth=2)
-
+        
         fixOverlay()
         self.canv.SaveAs(os.path.join(self.outputPath, canvName+extraname+'.pdf'))
         self.canv.Close()
@@ -219,10 +227,10 @@ class PlotGlobalFit():
     def PlotShapes(self, mode):
         XMin, XMax = (15, 4500)
         # YMin, YMax = (-2+0.001,2.5-0.001)
-        YMin, YMax = (-5,5)
+        YMin, YMax = (-2,2)
         canvName = 'GlobalFitShapes_'+mode+self.year
         self.canv = tdrCanvas(canvName, XMin, XMax, YMin, YMax, 'p_{T} [GeV]', 'JES change (%)', square=kSquare, isExtraSpace=True)
-        self.FixXAsisPartition()
+        FixXAsisPartition(self.canv)
         leg = tdrLeg(0.4, 0.9- 0.035*(len(self.functionforms)+(3 if mode=='postfit' else 1))/2, 0.92, 0.9, 0.035)
         leg.SetNColumns(2)
         sum='0'

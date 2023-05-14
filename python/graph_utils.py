@@ -89,6 +89,12 @@ def MergeGraphs(graph1, graph2):
     combined_graph = rt.TGraphErrors(len(points), x,y,ex,ey)
     return combined_graph
 
+def ShiftHist(hist, shift):
+    new_hist = hist.Clone(hist.GetName()+'_shifted')
+    for bin in range(1,hist.GetNbinsX()+1):
+        new_hist.SetBinContent(bin, hist.GetBinContent(bin) + shift)
+    return new_hist
+
 
 if __name__ == "__main__":
     # do nothing
