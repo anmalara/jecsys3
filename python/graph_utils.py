@@ -1,5 +1,15 @@
 import ROOT as rt
 from array import array
+from math import sqrt
+
+def ominus(a,b):
+    return sqrt(max(a*a-b*b,0.0))
+
+def oplus(a,b):
+    return sqrt(a*a+b*b)
+
+def RemoveFunc(graph):
+    graph.GetListOfFunctions().Remove(list(graph.GetListOfFunctions())[0])
 
 def HistToGraph(hist):
     graph = rt.TGraphErrors()
@@ -14,7 +24,22 @@ def HistToGraph(hist):
         graph.SetPointError(bin-1, ex, ey)
     return graph
     
-
+def Hist2DToGraphAsymm(h2d, xmin, xmax, yerr=None):
+    y_ax = h2d.GetYaxis()
+    x_vals, y_vals, x_errs_lo, x_errs_hi, y_errs = [], [], [], [], []
+    for x_bin in range(1, h2d.GetNbinsX()+2):
+        if h2d.GetXaxis().GetBinLowEdge(x_bin)!= float(xmin): continue
+        if h2d.GetXaxis().GetBinLowEdge(x_bin+1)!= float(xmax): continue
+        for y_bin in range(1, h2d.GetNbinsY()+2):
+            y_ = h2d.GetBinContent(x_bin,y_bin)
+            if y_==0: continue
+            x_vals.append(y_ax.GetBinCenter(y_bin))
+            y_vals.append(y_)
+            x_errs_lo.append(y_ax.GetBinCenter(y_bin)-y_ax.GetBinLowEdge(y_bin))
+            x_errs_hi.append(y_ax.GetBinLowEdge(y_bin+1)- y_ax.GetBinCenter(y_bin))
+            y_errs.append(0.2 if yerr else h2d.GetBinError(x_bin,y_bin))
+    graph = rt.TGraphAsymmErrors(len(x_vals), array('d',x_vals), array('d', y_vals),  array('d', x_errs_lo),  array('d', x_errs_hi),  array('d', y_errs), array('d', y_errs))
+    return graph
 
 def MakeRatioHistograms(h1, h2, name):
     hratio = h1.Clone(name)
@@ -32,23 +57,32 @@ def MakeRatioHistograms(h1, h2, name):
 
 def MakeRatioGraphs(g1, g2, name):
     gratio = g1.Clone(name)
+    center_x = list(g1.GetX())
+    vals_num = list(g1.GetY())
+    vals_den = list(g2.GetY())
     for bin in range(0,g1.GetN()):
         r, dr = (0,0)
-        x = list(g1.GetX())[bin]
+        x = center_x[bin]
         j = g2.GetXaxis().FindBin(x)
         if j < 1 or j > g2.GetN():
-            continue
-        num = list(g1.GetY())[bin]
-        den = list(g2.GetY())[bin]
+            if x == list(g2.GetX())[bin]:
+                j = bin
+            else:
+                continue
+        num = vals_num[bin]
+        den = vals_den[bin]
         if den!=0 and num!=0:
             r = num/den
-            # dr = r*oplus(list(g1.GetEY())[bin]/num,list(g2.GetEY())[bin]/den)
+            dr = r*oplus(g1.GetErrorY(bin)/num,g2.GetErrorY(bin)/den)
         gratio.SetPoint(bin, x, r)
-        # gratio.SetPointError(bin, x, dr)
+        if type(gratio) is rt.TGraphAsymmErrors:
+            gratio.SetPointError(bin, g1.GetErrorXlow(bin), g1.GetErrorXhigh(bin), dr, dr)
+        else:
+            gratio.SetPointError(bin, g1.GetErrorX(bin), dr)
     return gratio
 
-def MakeRatioGraphFunc(graph, func, scale = lambda x: 1):
-    ratio = rt.TGraphErrors()
+def MakeRatioGraphFunc(graph, func, isAsymmError=True, scale = lambda x: 1):
+    ratio = rt.TGraphAsymmErrors() if isAsymmError else rt.TGraphErrors()
     for i in range(graph.GetN()):
         x = list(graph.GetX())[i]
         y = list(graph.GetY())[i]
@@ -58,7 +92,10 @@ def MakeRatioGraphFunc(graph, func, scale = lambda x: 1):
             r= y/(func.Eval(x)*scale(x))
             dr= ey/(func.Eval(x)*scale(x))
         ratio.SetPoint(i, x, r)
-        ratio.SetPointError(i, ex, dr)
+        if isAsymmError:
+            ratio.SetPointError(i, graph.GetErrorXlow(i), graph.GetErrorXhigh(i), dr, dr)
+        else:
+            ratio.SetPointError(i, ex, dr)
     return ratio
 
 def TruncateGraph(graph, min, max):
@@ -68,17 +105,21 @@ def TruncateGraph(graph, min, max):
         if (max>0 and x>max): graph.RemovePoint(i)
     return graph
 
-def MergeGraphs(graph1, graph2):
+def MergeGraphs(graph1, graph2, scale_err=None):
     points = []
     for i in range(graph1.GetN()):
         x = list(graph1.GetX())[i]
         y = list(graph1.GetY())[i]
         ex, ey = graph1.GetErrorX(i), graph1.GetErrorY(i)
+        if scale_err:
+            ey *= scale_err
         points.append((x, y, ex, ey*1.10+(0.04 if y>0.9 else 0.002)))
     for i in range(graph2.GetN()):
         x = list(graph2.GetX())[i]
         y = list(graph2.GetY())[i]
         ex, ey = graph2.GetErrorX(i), graph2.GetErrorY(i)
+        if scale_err:
+            ey *= scale_err
         points.append((x, y, ex, ey*1.10+(0.04 if y>0.9 else 0.002)))
     
     points.sort(key=lambda p: p[0])
