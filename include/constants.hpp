@@ -1,20 +1,21 @@
 #pragma once
-#include "utils.hpp"
 #include "Containers.hpp"
+#include "utils.hpp"
 
-static const bool debug=true;
-static constexpr double func_range_min = 10.;  // Define fitting range
+static const bool debug = true;
+static constexpr double func_range_min = 10.;   // Define fitting range
 static constexpr double func_range_max = 6500.; // Define fitting range
-static constexpr double ptmin_multijet = -1; // Min pt considered for multijet recoil
-static constexpr double ptmax_multijet = 1300; // Max pt considered for multijet recoil
+static constexpr double ptmin_multijet = -1;    // Min pt considered for multijet recoil
+static constexpr double ptmax_multijet = 1300;  // Max pt considered for multijet recoil
 
-static constexpr double ptmin_pf = 40; // Min pt considered for pf composition
+static constexpr double ptmin_pf = 40;   // Min pt considered for pf composition
 static constexpr double ptmax_pf = 1000; // Max pt considered for pf composition
 
 static const std::map<TString, TString> input_fnames = {
-  {"jes", "rootfiles/jecdataRUN.root"},
+    {"jes", "rootfiles/jecdataRUN.root"},
 };
 
+// clang-format off
 static const std::map<TString, std::map<TString,TString>> reference_obj_map = {
   {"hjesref",       { {"fname", "jes"}, {"type", "jes"},  {"hname","MODE/etaETAMIN-ETAMAX/herr_l2l3res"},}},
   {"herr",          { {"fname", "jes"}, {"type", "err"},  {"hname","MODE/etaETAMIN-ETAMAX/herr"},}},
@@ -202,3 +203,4 @@ static const std::map<TString, std::map<TString,TString>> shapes_map = {
   {"trkEffNtrk2ToInfm3_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEffNtrk2ToInfm3"}, {"appliesTo","nef"},  {"form", "+1.414e+01-1.197e+01*log(x)+3.551e+00*pow(log(x),2)-4.294e-01*pow(log(x),3)+1.815e-02*pow(log(x),4)"},}},
 
 };
+// clang-format on
