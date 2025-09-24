@@ -1,16 +1,76 @@
 {
-    "samples": ["zjet", "gamjet", "hadw", "multijet"],
-    "hdm_methods" : ["mpf", "db"],
-    "hdm_methods_" : ["mpf"],
-    "hdm_methods_" : ["db"],
-    "types" : ["Resp","chf","nef","nhf"],
-    "types_" : ["Resp"],
-    "shapes" : ["ftd", "fp", "fhx", "fhh", "feh", "fhw", "fl1", "ftd-ftm", "f1q3-1"],
-    "shapes_" : ["hadHcalp3", "hadHcalZB097", "hadHcalZB100", "hadHcalZB106", "ecalm3", "ecalGain1p3", "ecalGain6p3", "ecalGain12p3", "trkEff0999Nm1", "trkEff0998Nm1", "trkEffNtrk1m3", "trkEffNtrk2ToInfm3", "fhw", "fl1", "f1q3-1"],
-    "shapes_" : ["const"],
-    "output_fname" : "rootfiles/outputRun2_old.root",
-    "run"     : "Run2",
-    "mode"    : "ratio",
-    "eta_min" : "00",
-    "eta_max" : "13"
+    "samples": [
+        "zjet",
+        "gamjet",
+        "hadw",
+        "multijet"
+    ],
+    "hdm_methods": [
+        "mpf",
+        "db"
+    ],
+    "hdm_methods_": [
+        "mpf"
+    ],
+    "hdm_methods_1": [
+        "db"
+    ],
+    "types_": [
+        "Resp",
+        "chf",
+        "nef",
+        "nhf"
+    ],
+    "types": [
+        "Resp"
+    ],
+    "shapes_3": [
+        "ftd",
+        "fp",
+        "fhx",
+        "fhh",
+        "feh",
+        "fhw",
+        "fl1",
+        "ftd-ftm",
+        "f1q3-1"
+    ],
+    "shapes": [
+        "ecalm3",
+        "ecalGain1p3",
+        "ecalGain6p3",
+        "ecalGain12p3",
+        "hadHcalp3",
+        "hadHcalH097",
+        "hadHcalH100",
+        "hadHcalH106",
+        "trkEffNtrk1m3",
+        "trkEffNtrk2ToInfm3",
+        "trkEff40999Nm1"
+    ],
+    "shapes_1": [
+        "hadHcalp3",
+        "hadHcalZB097",
+        "hadHcalZB100",
+        "hadHcalZB106",
+        "ecalm3",
+        "ecalGain1p3",
+        "ecalGain6p3",
+        "ecalGain12p3",
+        "trkEff0999Nm1",
+        "trkEff0998Nm1",
+        "trkEffNtrk1m3",
+        "trkEffNtrk2ToInfm3",
+        "fhw",
+        "fl1",
+        "f1q3-1"
+    ],
+    "shapes_2": [
+        "const"
+    ],
+    "output_fname": "rootfiles/outputRun2_old.root",
+    "run": "Run2",
+    "mode": "ratio",
+    "eta_min": "00",
+    "eta_max": "13"
 }
