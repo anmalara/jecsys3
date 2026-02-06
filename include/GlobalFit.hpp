@@ -45,7 +45,8 @@ public:
   static constexpr double globalErrMin = 0;
   static TString current_obs;
   //   static constexpr double ScaleFullSimShape = 0.01;
-  static constexpr double ScaleFullSimShape = 1;
+  static constexpr double ScaleFullSimShape = 100.;
+  //   static constexpr double ScaleFullSimShape = 1;
 
   std::string runName, mode, eta_min, eta_max, output_fname = "rootfiles/outputRUN.root";
   std::vector<TString> samples, hdm_methods, types, shapes_allowed;

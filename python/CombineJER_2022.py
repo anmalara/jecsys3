@@ -39,11 +39,16 @@ class CombineJER_2022:
         self.algo = algo
         self.etamin = etamin
         self.etamax = etamax
-        self.inputPath = "./rootfiles/CombineJER_2022/"
-        self.outputPath = "./pdfs/CombineJER_2022/"
+        self.dijet_fname = "nominal"
+        self.dijet_fname = "JERnominal"
+        self.dijet_fname = "JERdown"
+        folder_name = "CombineJER_2022_closure"
+        self.inputPath = f"./rootfiles/{folder_name}/"
+        folder_name = "CombineJER_2022_closure_down"
+        self.outputPath = f"./pdfs/{folder_name}/"
         if not os.path.exists(self.inputPath):
-            self.inputPath = "../rootfiles/CombineJER_2022/"
-            self.outputPath = "../pdfs/CombineJER_2022/"
+            self.inputPath = f"../rootfiles/{folder_name}/"
+            self.outputPath = f"../pdfs/{folder_name}/"
         self.outputPath += self.etamin.replace(".", "p") + "_" + self.etamax.replace(".", "p") + "/"
         os.system("mkdir -p " + self.outputPath)
         TDR.extraText = "Preliminary"
@@ -138,7 +143,7 @@ class CombineJER_2022:
             for mode in ["SM", "FE"]:
                 for type in ["Data", "MC"]:
                     name = f"{ver} {mode} {type}"
-                    self.graphs[name] = self.files[ver].Get(f"dijet_balance_jer_{type}_{etamin}_{etamax}_{mode}_nominal")
+                    self.graphs[name] = self.files[ver].Get(f"dijet_balance_jer_{type}_{etamin}_{etamax}_{mode}_{self.dijet_fname}")
                     graph = self.graphs[name]
                     if type == "MC" or type == "Data":
                         y_values = list(graph.GetY())
@@ -806,31 +811,32 @@ class CombineJER_2022:
 
 
 def plot_vs_eta(eta_edges):
-    inputPath = "./rootfiles/CombineJER_2022/"
-    outputPath = "./pdfs/CombineJER_2022/"
+    folder_name = "CombineJER_2022_closure"
+    inputPath = f"./rootfiles/{folder_name}/"
+    folder_name = "CombineJER_2022_closure_down"
+    outputPath = f"./pdfs/{folder_name}/"
     if not os.path.exists(inputPath):
-        inputPath = "../rootfiles/CombineJER_2022/"
-        outputPath = "../pdfs/CombineJER_2022/"
-    TDR.cms_lumi = TDR.commonScheme["legend"]["Run3"] + ", " + TDR.commonScheme["lumi"]["Run3"] + " fb^{-1}"
-    TDR.extraText3 = []
-    TDR.extraText3.append("AK4 Puppi")
-    canv = tdrCanvas("JER_vs_eta", -0.5, 5.2, 0.9, 2.5, "p_{T,jet} [GeV]", "Scale factor", square=False, isExtraSpace=True)
-    leg = tdrLeg(0.75, 0.90 - (2 + 1) * 0.045, 0.90, 0.90)
+        inputPath = f"../rootfiles/{folder_name}/"
+        outputPath = f"../pdfs/{folder_name}/"
     years = ["2022", "2022EE"]
     func_name = "combined balance func Ratio"
-    funcs = {}
-    bands = {}
-    graphs = {}
-    canv.cd()
     colors = {"2022": rt.kAzure + 2, "2022EE": rt.kOrange + 1}
     markers = {"2022": rt.kFullSquare, "2022EE": rt.kFullTriangleUp}
 
-    for year in years:
-        graphs[year] = rt.TGraphErrors()
-        # for pt in ["flat", "300"]:
-        for pt in ["300"]:
-            isFlat = pt == "flat"
-            gname = year + str(pt)
+    for pt in ["300"]:
+        TDR.cms_lumi = TDR.commonScheme["legend"]["Run3"] + ", " + TDR.commonScheme["lumi"]["Run3"] + " fb^{-1}"
+        TDR.extraText3 = []
+        TDR.extraText3.append("AK4 Puppi")
+        canv = tdrCanvas(f"JER_vs_eta_{pt}", -0.5, 5.2, 0.9, 2.5, "p_{T,jet} [GeV]", "Scale factor", square=False, isExtraSpace=True)
+        canv = tdrCanvas(f"JER_vs_eta_{pt}", -0.5, 5.2, 0.9, 1.4, "p_{T,jet} [GeV]", "Scale factor", square=False, isExtraSpace=True)
+        leg = tdrLeg(0.75, 0.90 - (2 + 1) * 0.045, 0.90, 0.90)
+        canv.cd()
+        # funcs = {}
+        # bands = {}
+        graphs = {}
+        isFlat = pt == "flat"
+        for year in years:
+            gname = year
             graphs[gname] = rt.TGraphErrors()
             for eta_index in range(len(eta_edges) - 1):
                 eta_min, eta_max = eta_edges[eta_index], eta_edges[eta_index + 1]
@@ -841,11 +847,14 @@ def plot_vs_eta(eta_edges):
                     sf, sf_err = extraxt_sf_from_txt(fname=f"{inputPath}/dijet_balance_{year}_flat.txt", eta_ref=eta_min)
                 else:
                     f_ = rt.TFile(f"{outputPath}/{eta_folder}/output_CombineJER_{year}.root")
-                    funcs[year + eta_folder] = f_.Get(func_name)
+                    func = f_.Get(func_name)
                     band = f_.Get(func_name + "_err_band")
-                    bands[year + eta_folder] = band
-                    sf = funcs[year + eta_folder].Eval(float(pt))
+                    graph = f_.Get(func_name.replace("func ", ""))
+                    sf = func.Eval(float(pt))
                     sf_err = band.GetBinError(band.FindBin(float(pt)))
+
+                    if sf < 1:
+                        print(pt, eta_bin, sf, sf_err)
                     f_.Close()
                 graphs[gname].SetPoint(eta_index, eta_bin, sf)
                 graphs[gname].SetPointError(eta_index, eta_bin_err, sf_err)
@@ -854,9 +863,11 @@ def plot_vs_eta(eta_edges):
                 tdrDraw(graphs[gname], "P5", mcolor=colors[year] + 1, marker=markers[year], fstyle=3004, fcolor=colors[year], alpha=0.3)
             else:
                 tdrDraw(graphs[gname], "P5", mcolor=colors[year], marker=markers[year], fstyle=3004, fcolor=colors[year], alpha=0.3)
-        tdrDraw(graphs[year], "P5", mcolor=colors[year], marker=markers[year], fstyle=3004, fcolor=colors[year], alpha=0.3)
-        leg.AddEntry(graphs[year], year, "lp")
+            tdrDraw(graphs[year], "P5", mcolor=colors[year], marker=markers[year], fstyle=3004, fcolor=colors[year], alpha=0.3)
+            leg.AddEntry(graphs[year], year, "lp")
+        canv.SaveAs(os.path.join(outputPath, f"sf_vs_eta_{pt}.pdf"))
 
+    for year in years:
         sfs_list = []
         for eta_index in range(len(eta_edges) - 1):
             eta_min, eta_max = eta_edges[eta_index], eta_edges[eta_index + 1]
@@ -871,15 +882,32 @@ def plot_vs_eta(eta_edges):
                 graph = f_else.Get(func_name.replace("func ", ""))
                 f_else.Close()
             pt_vals = list(graph.GetX())
-            for pt_index in range(graph.GetN()):
-                pt = pt_vals[pt_index]
-                pt_err = graph.GetErrorX(pt_index)
-                pt_min = max(0, pt - pt_err)
-                pt_max = min(2000, pt + pt_err)
+            pt_errs = list(graph.GetEX())
+            ref_pt_min = 10
+            ref_pt_max = 4000
+            pt_vals = [ref_pt_min] + pt_vals + [ref_pt_max]
+            pt_errs = [ref_pt_min] + pt_errs + [ref_pt_max]
+            last_pt_min = ref_pt_min
+            last_pt_max = ref_pt_max
+            for pt_index, pt in enumerate(pt_vals):
+                pt_err = pt_errs[pt_index]
+                pt_min = max(ref_pt_min, last_pt_min)
+                pt_max = min(ref_pt_max, pt + pt_err)
                 if pt_min > pt_max:
                     raise RuntimeError("Fix pt bins")
-                sf = func.Eval(pt)
-                sf_err = band.GetBinError(band.FindBin(pt))
+                if pt_index == 0:
+                    pt_min, pt_max = ref_pt_min, pt_vals[pt_index + 1] - pt_errs[pt_index + 1]
+                    # print("FIND ME min", pt_min, pt_max)
+                    sf = func.Eval(pt_vals[pt_index + 1])
+                    sf_err = band.GetBinError(band.FindBin(pt_vals[pt_index + 1]))
+                elif pt_index == len(pt_vals) - 1:
+                    pt_min, pt_max = pt_vals[pt_index - 1] + pt_errs[pt_index - 1], ref_pt_max
+                    # print("FIND ME max", pt_min, pt_max)
+                    sf = func.Eval(pt_vals[pt_index - 1])
+                    sf_err = band.GetBinError(band.FindBin(pt_vals[pt_index - 1]))
+                else:
+                    sf = func.Eval(pt)
+                    sf_err = band.GetBinError(band.FindBin(pt))
                 if year == "2022" and eta_edges[eta_index] == "2.500" and eta_edges[eta_index + 1] == "2.650":
                     if pt > 400:
                         sf, sf_err = 1.5, 0.1
@@ -887,13 +915,14 @@ def plot_vs_eta(eta_edges):
                         sf, sf_err = 1.8, 0.2
                     if pt > 600:
                         sf, sf_err = 2.0, 0.2
-                    print(eta_edges[eta_index], eta_edges[eta_index + 1], pt, sf, sf_err)
+                    # print(eta_edges[eta_index], eta_edges[eta_index + 1], pt, sf, sf_err)
                 info = {"pt_min": pt_min, "pt_max": pt_max, "sf": sf, "sf_err": sf_err}
                 sfs_list.insert(0 + pt_index, {"eta_min": -eta_max, "eta_max": -eta_min, **info})
                 sfs_list.append({"eta_min": eta_min, "eta_max": eta_max, **info})
+                last_pt_min = pt_max
 
         with open(f"{outputPath}/sf_{year}.txt", "w") as f_:
-            f_.write("{ 2 JetEta 1 JetPt SF TotDown TotUp}\n")
+            f_.write("{ 2 JetEta JetPt 0 None SF TotDown TotUp}\n")
             for el in sfs_list:
                 eta_min = el["eta_min"]
                 eta_max = el["eta_max"]
@@ -902,8 +931,6 @@ def plot_vs_eta(eta_edges):
                 sf = el["sf"]
                 sf_err = el["sf_err"]
                 f_.write(f"{eta_min:.3f} {eta_max:.3f} {pt_min:.0f} {pt_max:.0f} 3 {sf:.3f} {sf-sf_err:.3f} {sf+sf_err:.3f}\n")
-
-    canv.SaveAs(os.path.join(outputPath, "sf_vs_eta.pdf"))
 
 
 def main():

@@ -161,6 +161,50 @@ static const std::map<TString, std::map<TString,TString>> shapes_map = {
     {"trkEff0999Nm1_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEff0999Nm1"}, {"appliesTo","nef"}, {"form", "0.006172731082289809+log(x)*(-0.0036624862755707194+log(x)*(0.0004126722221112118+log(x)*(7.543854311739134e-05+log(x)*(-2.43427660982336e-06+log(x)*(-1.4531594242577402e-06+log(x)*(-1.3638895607190525e-07+log(x)*(4.2564320071212e-09+log(x)*(2.8413253746746024e-09+log(x)*(3.9205327428660363e-10+log(x)*(1.9444682305515457e-11+log(x)*(-3.2162641192845514e-12+log(x)*(-8.739283031824556e-13+log(x)*(-7.558836209143028e-14+log(x)*1.2835643778023857e-14)))))))))))))"},}},
     {"trkEff0999Nm1_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEff0999Nm1"}, {"appliesTo","nhf"}, {"form", "-0.009216817682272335+log(x)*(0.007137480763116881+log(x)*(-0.0014133973086683355+log(x)*(-6.474776709052071e-05+log(x)*(2.259415847984751e-05+log(x)*(3.330108940806109e-06+log(x)*(8.864911751543125e-08+log(x)*(-3.6892918003283806e-08+log(x)*(-7.2542231906868926e-09+log(x)*(-6.69922019366393e-10+log(x)*(-6.300174599731578e-12+log(x)*(9.234681718888957e-12+log(x)*(1.6928571308091924e-12+log(x)*(1.1283873148815965e-13+log(x)*-2.4934664866337097e-14)))))))))))))"},}},
 
+    {"pu",     {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu"}, {"appliesTo","Resp"}, {"form", "0*x"},}},
+    {"pu_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu"}, {"appliesTo","chf"}, {"form", "1*(-1.51692-8.28303e-05*pow(x,0.953677)+86.8373/x)"},}},
+    {"pu_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu"}, {"appliesTo","nef"}, {"form", "-0.347971*(-1.51692-8.28303e-05*pow(x,0.953677)+86.8373/x)"},}},
+    {"pu_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu"}, {"appliesTo","nhf"}, {"form", "-0.613995*(-1.51692-8.28303e-05*pow(x,0.953677)+86.8373/x)"},}},
+
+    {"pu_alt",     {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu_alt"}, {"appliesTo","Resp"}, {"form", "0*x"},}},
+    {"pu_alt_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu_alt"}, {"appliesTo","chf"}, {"form", "-5.50732+2.11911*log(x)+-0.227536*pow(log(x),2)"},}},
+    // {"pu_alt_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu_alt"}, {"appliesTo","nef"}, {"form", "6.17331-2.26215*log(x)+0.208312*pow(log(x),2)"},}},
+    {"pu_alt_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu_alt"}, {"appliesTo","nef"}, {"form", "-0.263003+0.0660135*log(x)"},}},
+    // {"pu_alt_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu_alt"}, {"appliesTo","nef"}, {"form", "0"},}},
+    {"pu_alt_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu_alt"}, {"appliesTo","nhf"}, {"form", "2.28893-0.94993*log(x)+0.115671*pow(log(x),2)"},}},
+    
+    {"ftd-ftm",     {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ftd-ftm"}, {"appliesTo","Resp"}, {"form", "100*3*((-0.116-0.6417*pow(x/208.,-0.3051)+23.63/x)-(0.2683-0.6994*pow(x/208.,-0.3051)+18.49/x))"},}},
+    {"ftd-ftm_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ftd-ftm"}, {"appliesTo","chf"}, {"form", "0*x"},}},
+    {"ftd-ftm_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ftd-ftm"}, {"appliesTo","nef"}, {"form", "0*x"},}},
+    {"ftd-ftm_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ftd-ftm"}, {"appliesTo","nhf"}, {"form", "0*x"},}},
+
+
+    {"constchf",     {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constchf"}, {"appliesTo","Resp"}, {"form", "0"},}},
+    {"constchf_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constchf"}, {"appliesTo","chf"}, {"form", "0.01"},}},
+    {"constchf_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constchf"}, {"appliesTo","nef"}, {"form", "0"},}},
+    {"constchf_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constchf"}, {"appliesTo","nhf"}, {"form", "0"},}},
+
+
+    {"constnef",     {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnef"}, {"appliesTo","Resp"}, {"form", "0"},}},
+    {"constnef_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnef"}, {"appliesTo","chf"}, {"form", "0"},}},
+    {"constnef_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnef"}, {"appliesTo","nef"}, {"form", "0.01"},}},
+    {"constnef_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnef"}, {"appliesTo","nhf"}, {"form", "0"},}},
+
+
+    {"constnhf",     {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnhf"}, {"appliesTo","Resp"}, {"form", "0"},}},
+    {"constnhf_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnhf"}, {"appliesTo","chf"}, {"form", "0"},}},
+    {"constnhf_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnhf"}, {"appliesTo","nef"}, {"form", "0"},}},
+    {"constnhf_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnhf"}, {"appliesTo","nhf"}, {"form", "0.01"},}},
+
+
+    {"const_ef",     {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","const_ef"}, {"appliesTo","Resp"}, {"form", "0"},}},
+    {"const_ef_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","const_ef"}, {"appliesTo","chf"}, {"form", "0.01"},}},
+    {"const_ef_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","const_ef"}, {"appliesTo","nef"}, {"form", "0.01"},}},
+    {"const_ef_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","const_ef"}, {"appliesTo","nhf"}, {"form", "0.01"},}},
+
+    {"const",    {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","const"},   {"appliesTo","Resp"}, {"form", "1"},}},
+
+
   {"const",    {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","const"},   {"appliesTo","Resp"}, {"form", "1"},}},
   {"ftd",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ftd"},     {"appliesTo","Resp"}, {"form", "-0.116-0.6417*pow(x/208.,-0.3051)+23.63/x"},}},
   {"fp",       {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","fp"},      {"appliesTo","Resp"}, {"form", "-0.8295"},}},
@@ -169,7 +213,7 @@ static const std::map<TString, std::map<TString,TString>> shapes_map = {
 //   {"feh",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","feh"},     {"appliesTo","Resp"}, {"form", "-0.2603-0.2196*pow(x/409.4,1.276)/(1+pow(x/409.4,1.276))*(1-pow(x/409.4,-1.276))"},}},
   {"fhw",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","fhw"},     {"appliesTo","Resp"}, {"form", "0.3*(0.9526-0.3883*(1+(pow(x/1285,2.46)-1)/(pow(x/1285,2.46)+1))+18.1/x-2.062*log(x)/x)"},}},
   {"fl1",      {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","fl1"},     {"appliesTo","Resp"}, {"form", "(1-(0.350077+0.553560*log(x)-0.0527681*pow(log(x),2))/x-1)"},}},
-  {"ftd-ftm",  {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ftd-ftm"}, {"appliesTo","Resp"}, {"form", "3*((-0.116-0.6417*pow(x/208.,-0.3051)+23.63/x)-(0.2683-0.6994*pow(x/208.,-0.3051)+18.49/x))"},}},
+//   {"ftd-ftm",  {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ftd-ftm"}, {"appliesTo","Resp"}, {"form", "3*((-0.116-0.6417*pow(x/208.,-0.3051)+23.63/x)-(0.2683-0.6994*pow(x/208.,-0.3051)+18.49/x))"},}},
   {"f1q3-1",   {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","f1q3-1"},  {"appliesTo","Resp"}, {"form", "0.01*(0.7966+0.9311*(pow(0.01*x,-1)-1))"},}},
 
   {"ftd_chf",  {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ftd"}, {"appliesTo","chf"}, {"form", "1.982-2.678*(1+(pow(x/47.02,0.262)-1)/(pow(x/47.02,0.262)+1))+0.1494*pow(x,+0.3)-3.097/x"},}},

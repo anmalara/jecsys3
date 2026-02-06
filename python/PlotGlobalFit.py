@@ -328,15 +328,24 @@ class PlotGlobalFit:
         yName = "PF composition change (10^{-2})"
         self.canv = tdrCanvas(canvName, XMin, XMax, YMin, YMax, "p_{T} [GeV]", yName, square=kSquare, isExtraSpace=True)
         FixXAsisPartition(self.canv)
+        leg = tdrLeg(0.35, 0.9 - 0.035 * 4, 0.92, 0.9, 0.030)
+        # leg.SetNColumns(4)
         line = ROOT.TLine(XMin, 0, XMax, 0)
         tdrDrawLine(line, lcolor=ROOT.kBlack, lstyle=ROOT.kDashed, lwidth=1)
+        print(self.infos_PF.keys())
         for name, info in self.infos_PF.items():
+            if "input" in name:
+                continue
+            if "postfit" in name:
+                continue
             if "Resppostfit" == name:
                 continue
             obj = info["obj"]
+            print("FIND", name, info["objName"], obj.Eval(100))
             tdrDraw(obj, **info["plotinfo"])
-            # if info['legName']:
-            #     self.leg.AddEntry(obj, info['legName'], info['legStyle'])
+            # tdrDraw(obj, "")
+            if info["legName"] and "output" in name:
+                leg.AddEntry(obj, info["legName"], "lf")
         for pf in ["_chf", "_nhf", "_nef"]:
             prefit, postfit = ("0", "0")
             for name, shape in self.shapes.items():
@@ -351,10 +360,14 @@ class PlotGlobalFit:
                     prefit += func_
                 else:
                     raise RuntimeError("Unexpected function")
-            # self.shapes['prefit'+pf] = rt.TF1('prefit'+pf, prefit,15,4500)
+                # print(pf, name, par_)
+            # prefit += ")"
+            # postfit += ")"
+            self.shapes["prefit" + pf] = rt.TF1("prefit" + pf, prefit, 15, 4500)
             self.shapes["postfit" + pf] = rt.TF1("postfit" + pf, postfit, 15, 4500)
-            # tdrDrawLine(self.shapes['prefit'+pf], lcolor=self.pf_style[pf.replace('_','')][0], lstyle=rt.kDashed, lwidth=2)
-            tdrDrawLine(self.shapes["postfit" + pf], lcolor=self.pf_style[pf.replace("_", "")][0], lstyle=rt.kSolid, lwidth=2)
+            # TODO
+            # tdrDrawLine(self.shapes["prefit" + pf], lcolor=self.pf_style[pf.replace("_", "")][0], lstyle=rt.kDashed, lwidth=2)
+            # tdrDrawLine(self.shapes["postfit" + pf], lcolor=self.pf_style[pf.replace("_", "")][0], lstyle=rt.kSolid, lwidth=2)
 
         fixOverlay()
         self.canv.SaveAs(os.path.join(self.outputPath, canvName + extraname + ".pdf"))
@@ -365,6 +378,8 @@ class PlotGlobalFit:
         # YMin, YMax = (-2+0.001,2.5-0.001)
         YMin, YMax = (-2, 2)
         YMin, YMax = (0.98, 1.05)
+        if mode == "postfit":
+            YMin, YMax = (-2, 5)
         canvName = "GlobalFitShapes_" + mode + self.year
         self.canv = tdrCanvas(canvName, XMin, XMax, YMin, YMax, "p_{T} [GeV]", "JES change (%)", square=kSquare, isExtraSpace=True)
         FixXAsisPartition(self.canv)
@@ -375,6 +390,7 @@ class PlotGlobalFit:
             if not shape + mode in self.shapes:
                 continue
             func = self.shapes[shape + mode]
+            print(shape + mode, func.Eval(100), func.GetTitle())
             sum += "+(" + func.GetTitle() + ")"
             if mode != "input":
                 for par in range(func.GetNpar()):
@@ -384,6 +400,7 @@ class PlotGlobalFit:
             leg.AddEntry(func, info["leg"], "l")
         if mode == "prefit":
             self.sum = sum
+        print("TOTAL", sum)
         self.shapes["sum"] = rt.TF1("sum", sum, 15, 4500)
         tdrDrawLine(self.shapes["sum"], lcolor=rt.kBlack, lstyle=rt.kSolid, lwidth=2)
         leg.AddEntry(self.shapes["sum"], "sum", "l")

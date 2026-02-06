@@ -1,8 +1,9 @@
 CC = g++
 
 CFLAGS = -std=c++17 -Wall
+CFLAGS += -Wno-unused-command-line-argument
 LFLAGS = -I. -I./include -lMinuit
-ROOTLIBS = `root-config --cflags --ldflags --glibs`
+ROOTLIBS = $(shell $(ROOTSYS)/bin/root-config --cflags --ldflags --glibs)
 LIBSMAIN = $(CFLAGS) $(LFLAGS) $(ROOTLIBS)
 
 SRCDIR   = src

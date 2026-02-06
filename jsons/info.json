@@ -15,14 +15,11 @@
     "hdm_methods_1": [
         "db"
     ],
-    "types_": [
+    "types": [
         "Resp",
         "chf",
         "nef",
         "nhf"
-    ],
-    "types": [
-        "Resp"
     ],
     "shapes_3": [
         "ftd",
@@ -46,7 +43,25 @@
         "hadHcalH106",
         "trkEffNtrk1m3",
         "trkEffNtrk2ToInfm3",
-        "trkEff40999Nm1"
+        "trkEff0999Nm1",
+        "constchf",
+        "constnef",
+        "constnhf",
+        "pu_alt",
+        "pu"
+    ],
+    "shapes_": [
+        "ecalm3",
+        "ecalGain1p3",
+        "ecalGain6p3",
+        "ecalGain12p3",
+        "hadHcalp3",
+        "hadHcalH097",
+        "hadHcalH100",
+        "hadHcalH106",
+        "trkEffNtrk1m3",
+        "trkEffNtrk2ToInfm3",
+        "trkEff0999Nm1"
     ],
     "shapes_1": [
         "hadHcalp3",

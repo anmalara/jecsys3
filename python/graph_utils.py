@@ -1,4 +1,5 @@
 import ROOT as rt
+import numpy as np
 from array import array
 from math import sqrt
 
@@ -54,6 +55,47 @@ def Hist2DToGraphAsymm(h2d, xmin, xmax, yerr=None):
             x_errs_lo.append(y_ax.GetBinCenter(y_bin) - y_ax.GetBinLowEdge(y_bin))
             x_errs_hi.append(y_ax.GetBinLowEdge(y_bin + 1) - y_ax.GetBinCenter(y_bin))
             y_errs.append(0.2 if yerr else h2d.GetBinError(x_bin, y_bin))
+    graph = rt.TGraphAsymmErrors(
+        len(x_vals), array("d", x_vals), array("d", y_vals), array("d", x_errs_lo), array("d", x_errs_hi), array("d", y_errs), array("d", y_errs)
+    )
+    return graph
+
+
+def Hist2DToGraphAsymmAverage(h2d, xmin, xmax, yerr=None):
+    y_ax = h2d.GetYaxis()
+    x_vals, y_vals, x_errs_lo, x_errs_hi, y_errs = [], [], [], [], []
+    x_bin_min, x_bin_max = None, None
+    import pdb
+
+    # pdb.set_trace()
+    for x_bin in range(1, h2d.GetNbinsX() + 2):
+        if h2d.GetXaxis().GetBinLowEdge(x_bin) == float(xmin):
+            x_bin_min = x_bin
+        if h2d.GetXaxis().GetBinLowEdge(x_bin + 1) == float(xmax):
+            x_bin_max = x_bin
+    # pdb.set_trace()
+    for y_bin in range(1, h2d.GetNbinsY() + 2):
+        y_, y_err = [], []
+        for x_bin in range(x_bin_min, x_bin_max + 1, 1):
+            bin_content = h2d.GetBinContent(x_bin, y_bin)
+            bin_error = h2d.GetBinError(x_bin, y_bin)
+            if bin_content == 0 or bin_error == 0:
+                continue
+            y_.append(bin_content)
+            y_err.append(bin_error)
+        if len(y_) == 0:
+            continue
+        # pdb.set_trace()
+        y_ = np.array(y_)
+        y_err = np.array(y_err)
+        y_err = np.mean(y_err) + np.std(y_)
+        y_err = np.std(y_)
+        y_ = np.mean(y_)
+        x_vals.append(y_ax.GetBinCenter(y_bin))
+        y_vals.append(y_)
+        x_errs_lo.append(y_ax.GetBinCenter(y_bin) - y_ax.GetBinLowEdge(y_bin))
+        x_errs_hi.append(y_ax.GetBinLowEdge(y_bin + 1) - y_ax.GetBinCenter(y_bin))
+        y_errs.append(0.2 if yerr else h2d.GetBinError(x_bin, y_bin))
     graph = rt.TGraphAsymmErrors(
         len(x_vals), array("d", x_vals), array("d", y_vals), array("d", x_errs_lo), array("d", x_errs_hi), array("d", y_errs), array("d", y_errs)
     )
@@ -167,9 +209,10 @@ def MergeGraphs(graph1, graph2, scale_err=None):
     combined_graph = rt.TGraphErrors(len(points), x, y, ex, ey)
     return combined_graph
 
+
 def ShiftHist(hist, shift):
-    new_hist = hist.Clone(hist.GetName()+'_shifted')
-    for bin in range(1,hist.GetNbinsX()+1):
+    new_hist = hist.Clone(hist.GetName() + "_shifted")
+    for bin in range(1, hist.GetNbinsX() + 1):
         new_hist.SetBinContent(bin, hist.GetBinContent(bin) + shift)
     return new_hist
 

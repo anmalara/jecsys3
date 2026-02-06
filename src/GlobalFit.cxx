@@ -99,11 +99,15 @@ void GlobalFit::LoadInputs() {
         PrintLine("Skipping hist: " + name, yellow);
       continue;
     }
+
     TString hname = ReplaceDefault(info["hname"]);
     if (debug)
       PrintLoading("hist", name, hname);
+
     unique_ptr<TGraphErrors> g;
     g.reset((TGraphErrors *)input_files[info["fname"].Data()]->Get(hname));
+    double scale = (info["type"] == "Resp") ? 1. : ScaleFullSimShape; // transform PF comp in percentage
+    multiplyGraph(g.get(), scale);
     my_data[name] = new DataContainer(name, info["type"], hname, g.get());
     nTotalPoints += my_data[name]->GetN();
     if (debug) {
@@ -225,6 +229,9 @@ void GlobalFit::LoadFSR() {
 void GlobalFit::ScaleFSR() {
   // Scale raw with frs corrections (HDM method)
   for (auto [name, fsr] : fsrs) {
+    if (debug) {
+      PrintLine("Adding " + name + " to " + fsr->appliesTo(), blue);
+    };
     auto dt = my_data[fsr->appliesTo()];
     TGraphErrors *raw = dt->raw();
     TGraphErrors *input = dt->input();
@@ -314,8 +321,9 @@ void GlobalFit::SetupFitFunction() {
   _jesFit = new TF1("jesFit", jesFit_wrapper_, fit_min, fit_max, nFitPars);
   for (auto [name, shape] : shapes) {
     int index = shape->index();
-    if (index > nFitPars)
-      continue;
+    if (index > nFitPars) {
+      throw runtime_error("Unexpected number of parameters. Can this ever happen?");
+    }
     if (shape->freeze()) {
       _jesFit->FixParameter(index, shape->initial());
       nFrozenPars++;
@@ -327,7 +335,9 @@ void GlobalFit::SetupFitFunction() {
   fitter = new TFitter(nTotPars);
   fitter->SetFCN(jesFitter);
   for (int i = 0; i != nTotPars; ++i) {
-    fitter->SetParameter(i, "", _jesFit->GetParameter(i), (i < nFitPars ? ScaleFullSimShape : 1), -100, 100);
+    // double err = (i < nFitPars ? ScaleFullSimShape : 1);
+    double err = 1;
+    fitter->SetParameter(i, "", _jesFit->GetParameter(i), err, -100, 100);
     if (i < nFitPars && IsParameterFixed(_jesFit, i))
       fitter->FixParameter(i);
   }
@@ -348,8 +358,7 @@ void GlobalFit::DoGlobalFit() {
     fitter->ExecuteCommand("MINI", 0, 0);
   }
 
-  // Verify that the degrees of freedom make sense. Important to check
-  // immediately.
+  // Verify that the degrees of freedom make sense. Important to check immediately.
   nFittedDataPoints -= nNuisancePars;
   if (penalizeFitPars)
     nFittedDataPoints -= nFitPars - nFrozenPars;
@@ -476,14 +485,18 @@ void GlobalFit::StoreFitOutput() {
       for (int i = graph->GetN() - 1; i != -1; --i) {
         graph->SetPoint(i, graph->GetX()[i], graph->GetY()[i] - 1);
       }
-      //   multiplyGraph(graph, 100);
+      multiplyGraph(graph, 100);
     }
-    multiplyGraph(graph, scale);
     // convert TF1 to TGraphErrors
     TH1D *hist = new TH1D("jesFit_hist_" + type, ";p_{T} (GeV);" + type, nbins, binning);
     hist->SetDirectory(0);
     FuncToHist(_jesFit, *error_matrix.get(), hist);
-    hist->Scale(scale);
+    if (type == "Resp") {
+      for (int j = 1; j != hist->GetNbinsX() + 1; ++j) {
+        hist->SetBinContent(j, hist->GetBinCenter(j), hist->GetBinContent(j) - 1);
+      }
+    }
+    // hist->Scale(scale);
     // Store
     graph->Write("jesFit_graph_" + type, TObject::kOverwrite);
     hist->Write(hist->GetName(), TObject::kOverwrite);
@@ -498,6 +511,7 @@ void GlobalFit::StoreFitOutput() {
   // Store all jes response
   std::vector<double> bins;
   for (auto [name, dt] : my_data) {
+    double scale = (dt->type() == "Resp") ? 1. : ScaleFullSimShape;
     TGraphErrors *raw = dt->raw();
     TGraphErrors *input = dt->input();
     TGraphErrors *output = dt->output();
@@ -505,10 +519,6 @@ void GlobalFit::StoreFitOutput() {
 
     for (int i = 0; i < output->GetN(); ++i)
       bins.push_back((int)output->GetX()[i]);
-    double scale = (dt->type() == "Resp") ? 1. : 1. / ScaleFullSimShape; // transform PF comp in percentage
-    multiplyGraph(input, scale);
-    multiplyGraph(output, scale);
-    multiplyGraph(variation, scale);
 
     std::map<int, TF1 *> funcs;
     for (auto [name_, shape] : shapes) {
@@ -520,7 +530,7 @@ void GlobalFit::StoreFitOutput() {
     input->Write(name + "_prefit", TObject::kOverwrite);
     output->Write(name + "_postfit", TObject::kOverwrite);
     variation->Write(name + "_variation_input", TObject::kOverwrite);
-    PropagateErrorToGraph(variation, funcs, *error_matrix.get());
+    PropagateErrorToGraph(variation, funcs, *error_matrix.get(), scale);
     variation->Write(name + "_variation_output", TObject::kOverwrite);
   }
 
@@ -559,10 +569,11 @@ void GlobalFit::StoreFitOutput() {
       sum = sum_weight = 1;
     }
     Resp_comb->SetPoint(i, x, sum / sum_weight);
-    Resp_comb_shift->SetPoint(i, x, (sum_shift / sum_weight - 1) / ScaleFullSimShape);
+    Resp_comb_shift->SetPoint(i, x, (sum_shift / sum_weight - 1) * 100); // Directly in percent.
 
     Resp_comb->SetPointError(i, 0, 1 / sum_weight);
-    Resp_comb_shift->SetPointError(i, 0, (1 / sum_weight) / ScaleFullSimShape);
+    // Resp_comb_shift->SetPointError(i, 0, (1 / sum_weight) / ScaleFullSimShape);
+    Resp_comb_shift->SetPointError(i, 0, (1 / sum_weight) * 100);
   }
 
   Resp_comb->Write("Resp_comb", TObject::kOverwrite);
@@ -616,7 +627,9 @@ function<double(Double_t *, Double_t *)> jesFit_wrapper(TH1D *hjesref, map<TStri
 
   return [hjesref, shapes](Double_t *x, Double_t *p) -> double {
     double var = (GlobalFit::current_obs == "Resp" ? 1. : 0.);
-    double scale = (GlobalFit::current_obs == "Resp") ? 1. : 1. / GlobalFit::ScaleFullSimShape;
+    double scale = (GlobalFit::current_obs == "Resp") ? 1. : GlobalFit::ScaleFullSimShape;
+    // double scale = 1. / GlobalFit::ScaleFullSimShape;
+    // double scale = 1;
     double pt = x[0];
 
     double jesref = 1;
@@ -639,6 +652,7 @@ function<double(Double_t *, Double_t *)> jesFit_wrapper(TH1D *hjesref, map<TStri
         par = max(par, 0.);
       // if (shape->ispositive()) par = min(1.,max(par,0.));
       var += par * f1->Eval(pt) * scale;
+    }
     return (var / jesref);
   };
 }
@@ -727,14 +741,15 @@ void jesFitter(Int_t &npar, Double_t *grad, Double_t &chi2, Double_t *par, Int_t
         // oplus(sigma,GlobalFit::globalErrMin) << endl; if (debug)
         // PrintLine("chi2 before point:
         // "+to_string_with_precision(chi2),yellow);
-        double fitPFG_delta = 0.25;
-        double chi;
+        double fitPFG_delta = 0.25; // TODO
+        // double fitPFG_delta = 0;
+        double chi = 0;
         if ("Resp" == dt_type) {
           chi = (data_point + shift - fit) / oplus(sigma, GlobalFit::globalErrMin);
         } else {
-          chi = max(fabs(data_point - fit) - GlobalFit::ScaleFullSimShape * fitPFG_delta, 0.) / sigma;
-          // cout << red << "FIND ME " << dt_type << " " << chi << " " << shift
-          // << reset << endl;
+          //   chi = max(fabs(data_point - fit) - GlobalFit::ScaleFullSimShape * fitPFG_delta, 0.) / sigma; // TODO
+          //   chi = max(fabs(data_point - fit) - fitPFG_delta, 0.) / sigma;
+          chi = max(fabs(data_point - fit), 0.) / oplus(sigma, fitPFG_delta);
         }
 
         chi2 += chi * chi;
