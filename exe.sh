@@ -2,4 +2,4 @@
 make clean
 make -j 8
 ./GlobalFit jsons/info.json
-/opt/local/bin/python3.13 python/PlotGlobalFit.py
+/opt/local/bin/python3.14 python/PlotGlobalFit.py
