@@ -61,7 +61,12 @@ class PlotGlobalFit:
                 ("hadHcalH106", {"leg": "HCAL extr. +6%", "color": rt.kGreen - 1, "npar": 4, "func": "hadHcalH106"}),
                 ("trkEffNtrk1m3", {"leg": "track eff. N=1 -3%", "color": rt.kOrange + 1, "npar": 4, "func": "trkEffNtrk1m3"}),
                 ("trkEffNtrk2ToInfm3", {"leg": "track eff. N>1 -3%", "color": rt.kOrange + 0, "npar": 4, "func": "trkEffNtrk2ToInfm3"}),
-                ("trkEff40999Nm1", {"leg": "track eff. 0.999^{N-1}", "color": rt.kOrange - 1, "npar": 4, "func": "trkEff40999Nm1"}),
+                ("trkEff0999Nm1", {"leg": "track eff. 0.999^{N-1}", "color": rt.kOrange - 1, "npar": 4, "func": "trkEff0999Nm1"}),
+                ("constchf", {"leg": "const", "color": rt.kRed - 1, "npar": 4, "func": "constchf"}),
+                ("constnef", {"leg": "const", "color": rt.kRed - 1, "npar": 4, "func": "constnef"}),
+                ("constnhf", {"leg": "const", "color": rt.kRed - 1, "npar": 4, "func": "constnhf"}),
+                ("pu_alt", {"leg": "pu_alt", "color": rt.kAzure + 7, "npar": 4, "func": "pu_alt"}),
+                ("pu", {"leg": "pu", "color": rt.kGreen + 1, "npar": 4, "func": "pu"}),
                 # ("track", {"leg": "tracks (p0)", "color": rt.kGreen + 2, "npar": 4, "func": "ftd"}),
                 # ("pho", {"leg": "photons (p1)", "color": rt.kCyan + 1, "npar": 1, "func": "fp"}),
                 # ("had", {"leg": "hadrons (p2)", "color": rt.kRed + 1, "npar": 4, "func": "fhx"}),
@@ -332,7 +337,7 @@ class PlotGlobalFit:
         # leg.SetNColumns(4)
         line = ROOT.TLine(XMin, 0, XMax, 0)
         tdrDrawLine(line, lcolor=ROOT.kBlack, lstyle=ROOT.kDashed, lwidth=1)
-        print(self.infos_PF.keys())
+        # print(self.infos_PF.keys())
         for name, info in self.infos_PF.items():
             if "input" in name:
                 continue
@@ -341,7 +346,7 @@ class PlotGlobalFit:
             if "Resppostfit" == name:
                 continue
             obj = info["obj"]
-            print("FIND", name, info["objName"], obj.Eval(100))
+            # print("FIND", name, info["objName"], obj.Eval(100))
             tdrDraw(obj, **info["plotinfo"])
             # tdrDraw(obj, "")
             if info["legName"] and "output" in name:
@@ -373,11 +378,14 @@ class PlotGlobalFit:
         self.canv.SaveAs(os.path.join(self.outputPath, canvName + extraname + ".pdf"))
         self.canv.Close()
 
-    def PlotShapes(self, mode):
+    def PlotShapes(self, mode, type_name=""):
         XMin, XMax = (15, 4500)
         # YMin, YMax = (-2+0.001,2.5-0.001)
         YMin, YMax = (-2, 2)
         YMin, YMax = (0.98, 1.05)
+        if type_name != "":
+            YMin -= 1.05
+            YMax -= 0.95
         if mode == "postfit":
             YMin, YMax = (-2, 5)
         canvName = "GlobalFitShapes_" + mode + self.year
@@ -386,11 +394,14 @@ class PlotGlobalFit:
         leg = tdrLeg(0.35, 0.9 - 0.035 * (len(self.functionforms) + (3 if mode == "postfit" else 1)) / 2, 0.92, 0.9, 0.030)
         leg.SetNColumns(2)
         sum = "0"
+        # print(self.shapes.keys())
         for shape, info in self.functionforms.items():
+            if "const" in shape and type_name.replace("_", "") not in shape:
+                continue
             if not shape + mode in self.shapes:
                 continue
-            func = self.shapes[shape + mode]
-            print(shape + mode, func.Eval(100), func.GetTitle())
+            func = self.shapes[shape + mode + type_name]
+            # print(shape + mode, func.Eval(100), func.GetTitle())
             sum += "+(" + func.GetTitle() + ")"
             if mode != "input":
                 for par in range(func.GetNpar()):
@@ -400,7 +411,7 @@ class PlotGlobalFit:
             leg.AddEntry(func, info["leg"], "l")
         if mode == "prefit":
             self.sum = sum
-        print("TOTAL", sum)
+        # print("TOTAL", sum)
         self.shapes["sum"] = rt.TF1("sum", sum, 15, 4500)
         tdrDrawLine(self.shapes["sum"], lcolor=rt.kBlack, lstyle=rt.kSolid, lwidth=2)
         leg.AddEntry(self.shapes["sum"], "sum", "l")
@@ -410,7 +421,7 @@ class PlotGlobalFit:
             tdrDrawLine(self.shapes["var_sum"], lcolor=rt.kBlack, lstyle=rt.kDashed, lwidth=2)
             leg.AddEntry(self.shapes["var_sum"], "post-pre", "l")
         fixOverlay()
-        self.canv.SaveAs(os.path.join(self.outputPath, canvName + extraname + ".pdf"))
+        self.canv.SaveAs(os.path.join(self.outputPath, canvName + type_name + extraname + ".pdf"))
         self.canv.Close()
 
     def PlotCorrelation(self):
@@ -421,9 +432,11 @@ class PlotGlobalFit:
         self.PlotResponse("raw")
         self.PlotResponse("prefit")
         self.PlotResponse("postfit")
-        self.PlotShapes("input")
-        self.PlotShapes("prefit")
-        self.PlotShapes("postfit")
+        type_names = ["", "_chf", "_nef", "_nhf"]
+        for type_name in type_names:
+            self.PlotShapes("input", type_name=type_name)
+            self.PlotShapes("prefit", type_name=type_name)
+            self.PlotShapes("postfit", type_name=type_name)
         self.PlotPFVariations()
         self.PlotCorrelation()
         self.inputfile.Close()

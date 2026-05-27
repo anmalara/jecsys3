@@ -107,6 +107,9 @@ void GlobalFit::LoadInputs() {
     unique_ptr<TGraphErrors> g;
     g.reset((TGraphErrors *)input_files[info["fname"].Data()]->Get(hname));
     double scale = (info["type"] == "Resp") ? 1. : ScaleFullSimShape; // transform PF comp in percentage
+    if (debug) {
+      PrintLine("\n   --> Scaling hist: " + to_string(scale), yellow);
+    }
     multiplyGraph(g.get(), scale);
     my_data[name] = new DataContainer(name, info["type"], hname, g.get());
     nTotalPoints += my_data[name]->GetN();
@@ -335,8 +338,8 @@ void GlobalFit::SetupFitFunction() {
   fitter = new TFitter(nTotPars);
   fitter->SetFCN(jesFitter);
   for (int i = 0; i != nTotPars; ++i) {
-    // double err = (i < nFitPars ? ScaleFullSimShape : 1);
-    double err = 1;
+    double err = (i < nFitPars ? ScaleFullSimShape : 1);
+    // double err = 1;
     fitter->SetParameter(i, "", _jesFit->GetParameter(i), err, -100, 100);
     if (i < nFitPars && IsParameterFixed(_jesFit, i))
       fitter->FixParameter(i);
@@ -475,8 +478,8 @@ void GlobalFit::StoreFitOutput() {
 
   for (auto type : types) {
     current_obs = type; // this is needed inside _jesFit
-    // double scale = (type == "Resp") ? 1. : 1. / ScaleFullSimShape;
-    double scale = 1;
+    double scale = (type == "Resp") ? 1. : 1. / ScaleFullSimShape;
+    // double scale = 1;
     // convert TF1 to TGraphErrors
     TGraphErrors *graph = new TGraphErrors();
     FuncToGraph(_jesFit, *error_matrix.get(), graph);

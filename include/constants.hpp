@@ -162,16 +162,16 @@ static const std::map<TString, std::map<TString,TString>> shapes_map = {
     {"trkEff0999Nm1_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","trkEff0999Nm1"}, {"appliesTo","nhf"}, {"form", "-0.009216817682272335+log(x)*(0.007137480763116881+log(x)*(-0.0014133973086683355+log(x)*(-6.474776709052071e-05+log(x)*(2.259415847984751e-05+log(x)*(3.330108940806109e-06+log(x)*(8.864911751543125e-08+log(x)*(-3.6892918003283806e-08+log(x)*(-7.2542231906868926e-09+log(x)*(-6.69922019366393e-10+log(x)*(-6.300174599731578e-12+log(x)*(9.234681718888957e-12+log(x)*(1.6928571308091924e-12+log(x)*(1.1283873148815965e-13+log(x)*-2.4934664866337097e-14)))))))))))))"},}},
 
     {"pu",     {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu"}, {"appliesTo","Resp"}, {"form", "0*x"},}},
-    {"pu_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu"}, {"appliesTo","chf"}, {"form", "1*(-1.51692-8.28303e-05*pow(x,0.953677)+86.8373/x)"},}},
-    {"pu_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu"}, {"appliesTo","nef"}, {"form", "-0.347971*(-1.51692-8.28303e-05*pow(x,0.953677)+86.8373/x)"},}},
-    {"pu_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu"}, {"appliesTo","nhf"}, {"form", "-0.613995*(-1.51692-8.28303e-05*pow(x,0.953677)+86.8373/x)"},}},
+    {"pu_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu"}, {"appliesTo","chf"}, {"form", "1./100.*(1*(-1.51692-8.28303e-05*pow(x,0.953677)+86.8373/x))"},}},
+    {"pu_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu"}, {"appliesTo","nef"}, {"form", "1./100.*(-0.347971*(-1.51692-8.28303e-05*pow(x,0.953677)+86.8373/x))"},}},
+    {"pu_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu"}, {"appliesTo","nhf"}, {"form", "1./100.*(-0.613995*(-1.51692-8.28303e-05*pow(x,0.953677)+86.8373/x))"},}},
 
     {"pu_alt",     {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu_alt"}, {"appliesTo","Resp"}, {"form", "0*x"},}},
-    {"pu_alt_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu_alt"}, {"appliesTo","chf"}, {"form", "-5.50732+2.11911*log(x)+-0.227536*pow(log(x),2)"},}},
+    {"pu_alt_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu_alt"}, {"appliesTo","chf"}, {"form", "1./100*(-5.50732+2.11911*log(x)+-0.227536*pow(log(x),2))"},}},
     // {"pu_alt_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu_alt"}, {"appliesTo","nef"}, {"form", "6.17331-2.26215*log(x)+0.208312*pow(log(x),2)"},}},
-    {"pu_alt_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu_alt"}, {"appliesTo","nef"}, {"form", "-0.263003+0.0660135*log(x)"},}},
+    {"pu_alt_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu_alt"}, {"appliesTo","nef"}, {"form", "1./100*(-0.263003+0.0660135*log(x))"},}},
     // {"pu_alt_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu_alt"}, {"appliesTo","nef"}, {"form", "0"},}},
-    {"pu_alt_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu_alt"}, {"appliesTo","nhf"}, {"form", "2.28893-0.94993*log(x)+0.115671*pow(log(x),2)"},}},
+    {"pu_alt_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","pu_alt"}, {"appliesTo","nhf"}, {"form", "1./100*(2.28893-0.94993*log(x)+0.115671*pow(log(x),2))"},}},
     
     {"ftd-ftm",     {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ftd-ftm"}, {"appliesTo","Resp"}, {"form", "100*3*((-0.116-0.6417*pow(x/208.,-0.3051)+23.63/x)-(0.2683-0.6994*pow(x/208.,-0.3051)+18.49/x))"},}},
     {"ftd-ftm_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","ftd-ftm"}, {"appliesTo","chf"}, {"form", "0*x"},}},
@@ -180,27 +180,27 @@ static const std::map<TString, std::map<TString,TString>> shapes_map = {
 
 
     {"constchf",     {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constchf"}, {"appliesTo","Resp"}, {"form", "0"},}},
-    {"constchf_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constchf"}, {"appliesTo","chf"}, {"form", "0.01"},}},
+    {"constchf_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constchf"}, {"appliesTo","chf"}, {"form", "0.01/100"},}},
     {"constchf_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constchf"}, {"appliesTo","nef"}, {"form", "0"},}},
     {"constchf_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constchf"}, {"appliesTo","nhf"}, {"form", "0"},}},
 
 
     {"constnef",     {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnef"}, {"appliesTo","Resp"}, {"form", "0"},}},
     {"constnef_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnef"}, {"appliesTo","chf"}, {"form", "0"},}},
-    {"constnef_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnef"}, {"appliesTo","nef"}, {"form", "0.01"},}},
+    {"constnef_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnef"}, {"appliesTo","nef"}, {"form", "0.01/100"},}},
     {"constnef_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnef"}, {"appliesTo","nhf"}, {"form", "0"},}},
 
 
     {"constnhf",     {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnhf"}, {"appliesTo","Resp"}, {"form", "0"},}},
     {"constnhf_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnhf"}, {"appliesTo","chf"}, {"form", "0"},}},
     {"constnhf_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnhf"}, {"appliesTo","nef"}, {"form", "0"},}},
-    {"constnhf_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnhf"}, {"appliesTo","nhf"}, {"form", "0.01"},}},
+    {"constnhf_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","constnhf"}, {"appliesTo","nhf"}, {"form", "0.01/100"},}},
 
 
     {"const_ef",     {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","const_ef"}, {"appliesTo","Resp"}, {"form", "0"},}},
-    {"const_ef_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","const_ef"}, {"appliesTo","chf"}, {"form", "0.01"},}},
-    {"const_ef_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","const_ef"}, {"appliesTo","nef"}, {"form", "0.01"},}},
-    {"const_ef_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","const_ef"}, {"appliesTo","nhf"}, {"form", "0.01"},}},
+    {"const_ef_chf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","const_ef"}, {"appliesTo","chf"}, {"form", "0.01/100"},}},
+    {"const_ef_nef", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","const_ef"}, {"appliesTo","nef"}, {"form", "0.01/100"},}},
+    {"const_ef_nhf", {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","const_ef"}, {"appliesTo","nhf"}, {"form", "0.01/100"},}},
 
     {"const",    {{"ispositive", "0"}, {"initial", "0"}, {"freeze", "0"}, {"type","const"},   {"appliesTo","Resp"}, {"form", "1"},}},
 

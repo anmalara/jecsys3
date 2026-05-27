@@ -35,6 +35,7 @@ ShapeContainer::ShapeContainer(TString name_, TString form_, TString appliesTo_,
 ostream &operator<<(ostream &os, const ShapeContainer &fitshape) {
   PrintLine("name: " + fitshape.name(), fitshape.color());
   PrintLine("  --> form: " + fitshape.form(), fitshape.color());
+  PrintLine("  --> eval: " + to_string(fitshape.func()->Eval(100)), fitshape.color());
   PrintLine("  --> appliesTo: " + fitshape.appliesTo(), fitshape.color());
   PrintLine("  --> index: " + to_string(fitshape.index()), fitshape.color());
   Print("  --> ispositive: " + to_string(fitshape.ispositive()) + reset, fitshape.color());
